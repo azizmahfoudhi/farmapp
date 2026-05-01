@@ -108,7 +108,7 @@ export default function HomePage() {
           </p>
 
           <div className="grid grid-cols-1 gap-4 w-full max-w-md">
-            <Link href="/structure" className="group flex items-center gap-4 p-4 rounded-2xl border border-border/50 bg-card/50 backdrop-blur-xl hover:bg-primary/5 hover:border-primary/30 transition-all shadow-sm hover:shadow-md">
+            <Link href="/structure" className="group flex items-center gap-4 p-4 rounded-2xl border border-border/50 bg-card/50 backdrop-blur-xl hover:bg-primary/5 hover:border-primary/50 hover:shadow-[0_0_20px_rgba(16,185,129,0.15)] transition-all duration-300">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
                 1
               </div>
@@ -119,24 +119,24 @@ export default function HomePage() {
               <ArrowRight className="w-5 h-5 text-muted group-hover:text-primary transition-colors transform group-hover:translate-x-1" />
             </Link>
 
-            <Link href="/lots" className="group flex items-center gap-4 p-4 rounded-2xl border border-border/50 bg-card/50 backdrop-blur-xl hover:bg-primary/5 hover:border-primary/30 transition-all shadow-sm hover:shadow-md">
+            <Link href="/lots" className="group flex items-center gap-4 p-4 rounded-2xl border border-border/50 bg-card/50 backdrop-blur-xl hover:bg-primary/5 hover:border-primary/50 hover:shadow-[0_0_20px_rgba(16,185,129,0.15)] transition-all duration-300">
               <div className="w-10 h-10 rounded-full bg-muted/10 flex items-center justify-center text-muted shrink-0 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
                 2
               </div>
               <div className="flex-1">
-                <div className="font-semibold text-foreground/80 group-hover:text-foreground">Ajouter vos lots</div>
+                <div className="font-semibold text-foreground/80 group-hover:text-foreground transition-colors">Ajouter vos lots</div>
                 <div className="text-xs text-muted">Combien d'arbres avez-vous plantés et quand ?</div>
               </div>
               <Layers className="w-5 h-5 text-muted/50 group-hover:text-primary transition-colors" />
             </Link>
 
-            <Link href="/depenses" className="group flex items-center gap-4 p-4 rounded-2xl border border-border/50 bg-card/50 backdrop-blur-xl hover:bg-primary/5 hover:border-primary/30 transition-all shadow-sm hover:shadow-md">
+            <Link href="/depenses" className="group flex items-center gap-4 p-4 rounded-2xl border border-border/50 bg-card/50 backdrop-blur-xl hover:bg-primary/5 hover:border-primary/50 hover:shadow-[0_0_20px_rgba(16,185,129,0.15)] transition-all duration-300">
               <div className="w-10 h-10 rounded-full bg-muted/10 flex items-center justify-center text-muted shrink-0 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
                 3
               </div>
               <div className="flex-1">
-                <div className="font-semibold text-foreground/80 group-hover:text-foreground">Saisir les dépenses</div>
-                <div className="text-xs text-muted">Frais récurrents ou investissements ponctuels.</div>
+                <div className="font-semibold text-foreground/80 group-hover:text-foreground transition-colors">Saisir les dépenses</div>
+                <div className="text-xs text-muted">Frais et investissements de la ferme.</div>
               </div>
               <Wallet className="w-5 h-5 text-muted/50 group-hover:text-primary transition-colors" />
             </Link>
@@ -172,7 +172,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-[500ms] fill-mode-both border-border/50 bg-card/50 backdrop-blur-xl shadow-sm hover:shadow-md transition-shadow">
+            <Card className="group animate-in fade-in slide-in-from-bottom-4 duration-700 delay-[500ms] fill-mode-both border-border/50 bg-card/50 backdrop-blur-xl shadow-sm hover:shadow-[0_0_30px_rgba(16,185,129,0.1)] transition-all">
               <CardHeader>
                 <div>
                   <CardTitle className="bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
@@ -184,8 +184,8 @@ export default function HomePage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-2xl border border-border/40 bg-background/40 p-4 transition-all hover:bg-background/60">
+                <div className="grid grid-cols-2 gap-3 relative z-10">
+                  <div className="group/item rounded-2xl border border-border/40 bg-background/40 p-4 transition-all hover:bg-background/60 hover:border-primary/30">
                     <div className="text-xs text-muted font-medium uppercase tracking-wider">Recettes</div>
                     <div className="mt-2 text-2xl font-bold tracking-tight">
                       {formatMoneyDT(totals.estimatedRevenue)}
@@ -195,7 +195,7 @@ export default function HomePage() {
                       Prix: {formatNumber(state.settings.prixKgOlives || 0, 2)} / kg
                     </div>
                   </div>
-                  <div className="rounded-2xl border border-border/40 bg-background/40 p-4 transition-all hover:bg-background/60">
+                  <div className="group/item rounded-2xl border border-border/40 bg-background/40 p-4 transition-all hover:bg-background/60 hover:border-primary/30">
                     <div className="text-xs text-muted font-medium uppercase tracking-wider">Résultat</div>
                     <div
                       className={cn(
@@ -214,7 +214,7 @@ export default function HomePage() {
               </CardContent>
             </Card>
 
-            <Card className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-[600ms] fill-mode-both border-border/50 bg-card/50 backdrop-blur-xl shadow-sm hover:shadow-md transition-shadow">
+            <Card className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-[600ms] fill-mode-both border-border/50 bg-card/50 backdrop-blur-xl shadow-sm hover:shadow-[0_0_30px_rgba(16,185,129,0.1)] transition-all">
               <CardHeader>
                 <div>
                   <CardTitle>Dépenses</CardTitle>
@@ -268,7 +268,7 @@ export default function HomePage() {
               </CardContent>
             </Card>
 
-            <Card className="md:col-span-2 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-[700ms] fill-mode-both border-border/50 bg-card/50 backdrop-blur-xl shadow-sm hover:shadow-md transition-shadow">
+            <Card className="md:col-span-2 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-[700ms] fill-mode-both border-border/50 bg-card/50 backdrop-blur-xl shadow-sm hover:shadow-[0_0_30px_rgba(16,185,129,0.1)] transition-all">
               <CardHeader className="pb-3 border-b border-border/50">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20">
@@ -341,7 +341,7 @@ function MetricCard({
 }) {
   return (
     <Card className={cn(
-      "border-border/50 bg-card/50 backdrop-blur-xl shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 group",
+      "border-border/50 bg-card/50 backdrop-blur-xl shadow-sm hover:shadow-[0_0_20px_rgba(16,185,129,0.15)] hover:border-primary/30 transition-all duration-300 hover:-translate-y-1 group relative overflow-hidden",
       "animate-in fade-in zoom-in-95 duration-500 fill-mode-both",
       delay
     )}>

@@ -19,6 +19,8 @@ const nav = [
   { href: "/projections", label: "Projections", icon: LineChart },
 ];
 
+import Image from "next/image";
+
 export function AppShell({
   title,
   children,
@@ -30,12 +32,19 @@ export function AppShell({
 }) {
   return (
     <div className="min-h-dvh flex flex-col bg-background text-foreground transition-colors duration-300">
-      <header className="sticky top-0 z-10 border-b border-border/40 bg-background/60 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-10 border-b border-border/40 bg-background/70 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/70 shadow-sm">
         <div className="mx-auto w-full max-w-4xl px-4 py-3 flex items-center justify-between gap-3 animate-in fade-in slide-in-from-top-4 duration-500">
-          <div className="min-w-0">
-            <div className="text-[10px] uppercase tracking-widest text-muted font-semibold">Senya</div>
-            <div className="truncate text-lg font-bold tracking-tight bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-              {title ?? "Tableau de bord"}
+          <div className="flex items-center gap-3 min-w-0">
+            <Image src="/logo.png" alt="Senya Logo" width={36} height={36} className="rounded-xl shadow-sm border border-border/50" />
+            <div className="flex flex-col">
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight bg-gradient-to-r from-primary to-emerald-400 bg-clip-text text-transparent leading-none pb-0.5">
+                Senya
+              </h1>
+              {title && (
+                <div className="text-xs font-medium text-muted uppercase tracking-wider">
+                  {title}
+                </div>
+              )}
             </div>
           </div>
           <div className="shrink-0">{actions}</div>
