@@ -94,6 +94,7 @@ function LotCard({ lot, farm, typeById, tISO }: { lot: any; farm: ReturnType<typ
   const [datePlantation, setDatePlantation] = React.useState(lot.datePlantationISO);
   const [nb, setNb] = React.useState(String(lot.nbArbres));
   const [irrig, setIrrig] = React.useState(lot.irrigation);
+  const [croissance, setCroissance] = React.useState(lot.etatCroissance || "normal");
 
   const type = typeById.get(lot.typeId);
   const age = ageYearsFromISO(lot.datePlantationISO, tISO);
@@ -117,6 +118,7 @@ function LotCard({ lot, farm, typeById, tISO }: { lot: any; farm: ReturnType<typ
       datePlantationISO: datePlantation,
       nbArbres: Math.max(1, Number(nb || 0)),
       irrigation: irrig,
+      etatCroissance: croissance,
     });
     setIsEditing(false);
   }
@@ -164,6 +166,18 @@ function LotCard({ lot, farm, typeById, tISO }: { lot: any; farm: ReturnType<typ
             <Input type="date" value={datePlantation} onChange={e => setDatePlantation(e.target.value)} className="bg-background h-9" />
             <Input inputMode="numeric" min="1" value={nb} onChange={e => setNb(e.target.value)} className="bg-background h-9" placeholder="Nb arbres" />
           </div>
+
+          <label className="grid gap-1.5">
+            <select
+              className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              value={croissance}
+              onChange={(e) => setCroissance(e.target.value as any)}
+            >
+              <option value="normal">Croissance Normale</option>
+              <option value="faible">Croissance Faible</option>
+              <option value="excellent">Croissance Excellente</option>
+            </select>
+          </label>
         </CardContent>
       </Card>
     );
@@ -187,6 +201,18 @@ function LotCard({ lot, farm, typeById, tISO }: { lot: any; farm: ReturnType<typ
                   <><DropletOff className="w-3 h-3 text-muted" /> Bour</>
                 )}
               </span>
+              {lot.etatCroissance === "faible" && (
+                <>
+                  <span>•</span>
+                  <span className="text-warning flex items-center gap-1"><Trees className="w-3 h-3" /> Croissance faible</span>
+                </>
+              )}
+              {lot.etatCroissance === "excellent" && (
+                <>
+                  <span>•</span>
+                  <span className="text-primary flex items-center gap-1"><Trees className="w-3 h-3" /> Croissance excellente</span>
+                </>
+              )}
             </CardDescription>
           </div>
         </div>

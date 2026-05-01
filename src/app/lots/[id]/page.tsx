@@ -56,7 +56,8 @@ export default function LotDetailPage() {
               <CardTitle>Résumé du lot</CardTitle>
               <CardDescription>
                 {type?.nom ?? "Type inconnu"} · {formatNumber(lot.nbArbres)} arbres ·{" "}
-                {formatNumber(age, 1)} ans · {lot.irrigation === "irrigue" ? "Irrigué" : "Non irrigué"}
+                {formatNumber(age, 1)} ans · {lot.irrigation === "irrigue" ? "Irrigué" : "Non irrigué"} ·{" "}
+                {lot.etatCroissance === "faible" ? "Croissance Faible" : lot.etatCroissance === "excellent" ? "Croissance Excellente" : "Croissance Normale"}
               </CardDescription>
             </div>
           </CardHeader>

@@ -2,6 +2,7 @@ import { addMonths, differenceInMonths, parseISO } from "date-fns";
 import type {
   Batch,
   FarmState,
+  GrowthStatus,
   IrrigationStatus,
   TreeType,
   UUID,
@@ -51,6 +52,7 @@ export function estimatedYieldKgPerTree(args: {
   type: TreeType;
   ageYears: number;
   irrigation: IrrigationStatus;
+  growthStatus?: GrowthStatus;
 }) {
   const yieldPct = yieldPercentageByAge(args.ageYears);
   const scaled = yieldPct * args.type.rendementMaxKgParArbre;
@@ -59,7 +61,13 @@ export function estimatedYieldKgPerTree(args: {
   // On considère que le rendement max est atteint SOUS irrigation idéale.
   // Donc si non irrigué, le rendement est diminué drastiquement (ex: -40%).
   const irrigationMultiplier = args.irrigation === "irrigue" ? 1.0 : 0.6;
-  return Math.max(0, scaled * irrigationMultiplier);
+  
+  // Multiplicateur pour l'état de croissance
+  let growthMultiplier = 1.0;
+  if (args.growthStatus === "faible") growthMultiplier = 0.6;
+  if (args.growthStatus === "excellent") growthMultiplier = 1.2;
+
+  return Math.max(0, scaled * irrigationMultiplier * growthMultiplier);
 }
 
 export function batchEstimatedProductionKg(args: {
@@ -72,6 +80,7 @@ export function batchEstimatedProductionKg(args: {
     type: args.type,
     ageYears,
     irrigation: args.batch.irrigation,
+    growthStatus: args.batch.etatCroissance,
   });
   return perTree * args.batch.nbArbres;
 }

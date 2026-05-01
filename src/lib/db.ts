@@ -28,6 +28,7 @@ type DbBatchRow = {
   date_plantation: string; // yyyy-MM-dd
   nb_arbres: number;
   irrigation: IrrigationStatus;
+  etat_croissance: string | null;
 };
 
 type DbExpenseRow = {
@@ -61,6 +62,7 @@ function mapBatch(r: DbBatchRow): Batch {
     datePlantationISO: r.date_plantation,
     nbArbres: Number(r.nb_arbres),
     irrigation: r.irrigation,
+    etatCroissance: (r.etat_croissance as any) || "normal",
   };
 }
 function mapExpense(r: DbExpenseRow): Expense {
@@ -146,6 +148,7 @@ export async function createBatch(input: Omit<Batch, "id">) {
       date_plantation: input.datePlantationISO,
       nb_arbres: input.nbArbres,
       irrigation: input.irrigation,
+      etat_croissance: input.etatCroissance ?? "normal",
     })
     .select("*")
     .single();
@@ -215,6 +218,7 @@ export async function updateBatch(id: UUID, input: Partial<Omit<Batch, "id">>) {
   if (input.datePlantationISO !== undefined) payload.date_plantation = input.datePlantationISO;
   if (input.nbArbres !== undefined) payload.nb_arbres = input.nbArbres;
   if (input.irrigation !== undefined) payload.irrigation = input.irrigation;
+  if (input.etatCroissance !== undefined) payload.etat_croissance = input.etatCroissance;
   const { error } = await sb.from("batches").update(payload).eq("id", id);
   if (error) throw error;
 }

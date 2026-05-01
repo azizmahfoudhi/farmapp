@@ -159,6 +159,7 @@ function CreateBatchCard({ farm }: { farm: ReturnType<typeof useFarmData> }) {
   const [datePlantation, setDatePlantation] = React.useState<string>(new Date().toISOString().slice(0, 10));
   const [nb, setNb] = React.useState<string>("100");
   const [irrig, setIrrig] = React.useState<"irrigue" | "non_irrigue">("non_irrigue");
+  const [croissance, setCroissance] = React.useState<"faible" | "normal" | "excellent">("normal");
 
   async function submit() {
     const chosen = typeId || farm.types[0]?.id;
@@ -169,6 +170,7 @@ function CreateBatchCard({ farm }: { farm: ReturnType<typeof useFarmData> }) {
       datePlantationISO: datePlantation,
       nbArbres: Math.max(1, Number(nb || 0)), // Prevent negative or zero
       irrigation: irrig,
+      etatCroissance: croissance,
     });
     setNom("Nouveau lot");
     setNb("100");
@@ -232,6 +234,19 @@ function CreateBatchCard({ farm }: { farm: ReturnType<typeof useFarmData> }) {
             </select>
           </label>
         </div>
+
+        <label className="grid gap-1.5">
+          <div className="text-sm font-medium text-foreground/80">État de croissance</div>
+          <select
+            className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            value={croissance}
+            onChange={(e) => setCroissance(e.target.value as any)}
+          >
+            <option value="normal">Normal (100% rendement)</option>
+            <option value="faible">Faible (60% rendement)</option>
+            <option value="excellent">Excellent (120% rendement)</option>
+          </select>
+        </label>
         
         <Button onClick={submit} disabled={farm.types.length === 0} className="w-full mt-2 gap-2">
           <Sprout className="w-4 h-4" />
