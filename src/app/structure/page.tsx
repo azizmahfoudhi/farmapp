@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/Input";
 import { useFarmData } from "@/lib/useFarmData";
 import { formatMoneyDT } from "@/lib/format";
-import { CheckCircle2, Trees, Trash2, Sprout, Edit2, X, Check } from "lucide-react";
+import { CheckCircle2, Trees, Trash2, Sprout, Edit2, X, Check, Star } from "lucide-react";
 
 export default function StructurePage() {
   const farm = useFarmData();
@@ -159,7 +159,7 @@ function CreateBatchCard({ farm }: { farm: ReturnType<typeof useFarmData> }) {
   const [datePlantation, setDatePlantation] = React.useState<string>(new Date().toISOString().slice(0, 10));
   const [nb, setNb] = React.useState<string>("100");
   const [irrig, setIrrig] = React.useState<"irrigue" | "non_irrigue">("non_irrigue");
-  const [croissance, setCroissance] = React.useState<"faible" | "normal" | "excellent">("normal");
+  const [croissance, setCroissance] = React.useState<number>(3);
 
   async function submit() {
     const chosen = typeId || farm.types[0]?.id;
@@ -236,16 +236,30 @@ function CreateBatchCard({ farm }: { farm: ReturnType<typeof useFarmData> }) {
         </div>
 
         <label className="grid gap-1.5">
-          <div className="text-sm font-medium text-foreground/80">État de croissance</div>
-          <select
-            className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            value={croissance}
-            onChange={(e) => setCroissance(e.target.value as any)}
-          >
-            <option value="normal">Normal (100% rendement)</option>
-            <option value="faible">Faible (60% rendement)</option>
-            <option value="excellent">Excellent (120% rendement)</option>
-          </select>
+          <div className="text-sm font-medium text-foreground/80 flex items-center justify-between">
+            <span>État de croissance</span>
+            <span className="text-xs text-muted">
+              {croissance === 1 && "Critique (0.4x)"}
+              {croissance === 2 && "Faible (0.7x)"}
+              {croissance === 3 && "Normal (1.0x)"}
+              {croissance === 4 && "Bon (1.2x)"}
+              {croissance === 5 && "Excellent (1.5x)"}
+            </span>
+          </div>
+          <div className="flex items-center gap-1 bg-background/50 p-2 rounded-md border border-input">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button
+                key={star}
+                type="button"
+                onClick={() => setCroissance(star)}
+                className={`p-1 rounded-md transition-colors ${
+                  star <= croissance ? "text-warning hover:text-warning/80" : "text-muted hover:text-muted/80"
+                }`}
+              >
+                <Star className={`w-6 h-6 ${star <= croissance ? "fill-current" : ""}`} />
+              </button>
+            ))}
+          </div>
         </label>
         
         <Button onClick={submit} disabled={farm.types.length === 0} className="w-full mt-2 gap-2">

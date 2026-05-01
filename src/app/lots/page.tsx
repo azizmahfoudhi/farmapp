@@ -9,7 +9,7 @@ import { ageYearsFromISO, batchEstimatedProductionKg, sumExpensesForBatch } from
 import { formatKg, formatMoneyDT, formatNumber } from "@/lib/format";
 import { todayISO } from "@/lib/derive";
 import { useFarmData } from "@/lib/useFarmData";
-import { Trees, Plus, Map as MapIcon, Droplets, DropletOff, Edit2, X, Check, Trash2 } from "lucide-react";
+import { Trees, Plus, Map as MapIcon, Droplets, DropletOff, Edit2, X, Check, Trash2, Star } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 
 export default function LotsPage() {
@@ -94,7 +94,7 @@ function LotCard({ lot, farm, typeById, tISO }: { lot: any; farm: ReturnType<typ
   const [datePlantation, setDatePlantation] = React.useState(lot.datePlantationISO);
   const [nb, setNb] = React.useState(String(lot.nbArbres));
   const [irrig, setIrrig] = React.useState(lot.irrigation);
-  const [croissance, setCroissance] = React.useState(lot.etatCroissance || "normal");
+  const [croissance, setCroissance] = React.useState<number>(lot.etatCroissance ?? 3);
 
   const type = typeById.get(lot.typeId);
   const age = ageYearsFromISO(lot.datePlantationISO, tISO);
@@ -168,15 +168,30 @@ function LotCard({ lot, farm, typeById, tISO }: { lot: any; farm: ReturnType<typ
           </div>
 
           <label className="grid gap-1.5">
-            <select
-              className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2"
-              value={croissance}
-              onChange={(e) => setCroissance(e.target.value as any)}
-            >
-              <option value="normal">Croissance Normale</option>
-              <option value="faible">Croissance Faible</option>
-              <option value="excellent">Croissance Excellente</option>
-            </select>
+            <div className="text-xs font-medium text-foreground/80 flex items-center justify-between">
+              <span>État de croissance</span>
+              <span className="text-[10px] text-muted">
+                {croissance === 1 && "Critique (0.4x)"}
+                {croissance === 2 && "Faible (0.7x)"}
+                {croissance === 3 && "Normal (1.0x)"}
+                {croissance === 4 && "Bon (1.2x)"}
+                {croissance === 5 && "Excellent (1.5x)"}
+              </span>
+            </div>
+            <div className="flex items-center gap-1 bg-background/50 p-1.5 rounded-md border border-input">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onClick={() => setCroissance(star)}
+                  className={`p-1 rounded-md transition-colors ${
+                    star <= croissance ? "text-warning hover:text-warning/80" : "text-muted hover:text-muted/80"
+                  }`}
+                >
+                  <Star className={`w-4 h-4 ${star <= croissance ? "fill-current" : ""}`} />
+                </button>
+              ))}
+            </div>
           </label>
         </CardContent>
       </Card>
@@ -201,16 +216,17 @@ function LotCard({ lot, farm, typeById, tISO }: { lot: any; farm: ReturnType<typ
                   <><DropletOff className="w-3 h-3 text-muted" /> Bour</>
                 )}
               </span>
-              {lot.etatCroissance === "faible" && (
+              {lot.etatCroissance !== 3 && (
                 <>
                   <span>•</span>
-                  <span className="text-warning flex items-center gap-1"><Trees className="w-3 h-3" /> Croissance faible</span>
-                </>
-              )}
-              {lot.etatCroissance === "excellent" && (
-                <>
-                  <span>•</span>
-                  <span className="text-primary flex items-center gap-1"><Trees className="w-3 h-3" /> Croissance excellente</span>
+                  <span className="flex items-center gap-0.5" title="État de croissance">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        className={`w-3 h-3 ${star <= (lot.etatCroissance ?? 3) ? "text-warning fill-current" : "text-muted"}`}
+                      />
+                    ))}
+                  </span>
                 </>
               )}
             </CardDescription>

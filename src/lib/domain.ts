@@ -2,8 +2,6 @@ export type UUID = string;
 
 export type IrrigationStatus = "irrigue" | "non_irrigue";
 
-export type GrowthStatus = "faible" | "normal" | "excellent";
-
 export type ExpenseCategory =
   | "plantation"
   | "main_oeuvre"
@@ -36,7 +34,7 @@ export type Batch = {
   datePlantationISO: string; // yyyy-MM-dd
   nbArbres: number;
   irrigation: IrrigationStatus;
-  etatCroissance?: GrowthStatus;
+  etatCroissance?: number; // 1 to 5 stars
 };
 
 export type Expense = {

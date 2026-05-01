@@ -62,7 +62,7 @@ function mapBatch(r: DbBatchRow): Batch {
     datePlantationISO: r.date_plantation,
     nbArbres: Number(r.nb_arbres),
     irrigation: r.irrigation,
-    etatCroissance: (r.etat_croissance as any) || "normal",
+    etatCroissance: isNaN(Number(r.etat_croissance)) ? 3 : Number(r.etat_croissance) || 3,
   };
 }
 function mapExpense(r: DbExpenseRow): Expense {
@@ -148,7 +148,7 @@ export async function createBatch(input: Omit<Batch, "id">) {
       date_plantation: input.datePlantationISO,
       nb_arbres: input.nbArbres,
       irrigation: input.irrigation,
-      etat_croissance: input.etatCroissance ?? "normal",
+      etat_croissance: input.etatCroissance ?? 3,
     })
     .select("*")
     .single();

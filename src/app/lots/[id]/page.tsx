@@ -8,6 +8,7 @@ import { ageYearsFromISO, batchEstimatedProductionKg, sumExpensesForBatch } from
 import { todayISO } from "@/lib/derive";
 import { formatKg, formatMoneyDT, formatNumber } from "@/lib/format";
 import { useFarmData } from "@/lib/useFarmData";
+import { Star } from "lucide-react";
 
 export default function LotDetailPage() {
   const farm = useFarmData();
@@ -56,8 +57,20 @@ export default function LotDetailPage() {
               <CardTitle>Résumé du lot</CardTitle>
               <CardDescription>
                 {type?.nom ?? "Type inconnu"} · {formatNumber(lot.nbArbres)} arbres ·{" "}
-                {formatNumber(age, 1)} ans · {lot.irrigation === "irrigue" ? "Irrigué" : "Non irrigué"} ·{" "}
-                {lot.etatCroissance === "faible" ? "Croissance Faible" : lot.etatCroissance === "excellent" ? "Croissance Excellente" : "Croissance Normale"}
+                {formatNumber(age, 1)} ans · {lot.irrigation === "irrigue" ? "Irrigué" : "Non irrigué"}
+                {lot.etatCroissance !== 3 && (
+                  <>
+                    {" "}·{" "}
+                    <span className="inline-flex items-center gap-0.5 align-middle" title="État de croissance">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`w-3.5 h-3.5 ${star <= (lot.etatCroissance ?? 3) ? "text-warning fill-current" : "text-muted"}`}
+                        />
+                      ))}
+                    </span>
+                  </>
+                )}
               </CardDescription>
             </div>
           </CardHeader>
