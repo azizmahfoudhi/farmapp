@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { ResponsiveContainer, AreaChart, Area, XAxis, Tooltip, CartesianGrid } from "recharts";
 import { AppShell } from "@/components/AppShell";
@@ -11,7 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/Card";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { buildInsights, farmTotals, recurringSeriesLast12Months } from "@/lib/derive";
+import { buildInsights, farmTotals, recurringSeriesLast12Months, WeatherData } from "@/lib/derive";
 import { formatKg, formatMoneyDT, formatNumber } from "@/lib/format";
 import { cn } from "@/lib/cn";
 import { useFarmData } from "@/lib/useFarmData";
@@ -19,6 +20,24 @@ import { Sprout, Layers, Wallet, ArrowRight } from "lucide-react";
 
 export default function HomePage() {
   const farm = useFarmData();
+  const [weather, setWeather] = React.useState<WeatherData | null>(null);
+
+  React.useEffect(() => {
+    // Fetch real-time weather for Tunisia (approx. Tunis coordinates)
+    fetch("https://api.open-meteo.com/v1/forecast?latitude=36.8065&longitude=10.1815&current=temperature_2m,precipitation&timezone=Africa%2FTunis")
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.current) {
+          setWeather({
+            temp: data.current.temperature_2m,
+            precipitation: data.current.precipitation,
+            isRaining: data.current.precipitation > 0,
+          });
+        }
+      })
+      .catch(console.error);
+  }, []);
+
   const state = {
     settings: farm.settings,
     types: farm.types,
@@ -29,7 +48,7 @@ export default function HomePage() {
   };
 
   const totals = farmTotals(state);
-  const insights = buildInsights(state);
+  const insights = buildInsights(state, weather);
   const recurringSeries = recurringSeriesLast12Months(state).map((p) => ({
     ...p,
     month: p.monthISO.slice(5, 7),
@@ -251,51 +270,52 @@ export default function HomePage() {
             </Card>
 
             <Card className="md:col-span-2 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-[700ms] fill-mode-both border-border/50 bg-card/50 backdrop-blur-xl shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div>
-                  <CardTitle>Insights & Recommandations</CardTitle>
-                  <CardDescription>Analyse automatique de votre exploitation</CardDescription>
+              <CardHeader className="pb-3 border-b border-border/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20">
+                    <span className="text-2xl">🤖</span>
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Assistant Senya</CardTitle>
+                    <CardDescription>
+                      {weather ? `Météo locale: ${weather.temp}°C, ${weather.precipitation}mm` : "Analyse en temps réel de votre ferme..."}
+                    </CardDescription>
+                  </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="pt-4 space-y-4">
                 {insights.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-8 text-center bg-background/30 rounded-2xl border border-dashed border-border">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                      <span className="text-xl text-primary">💡</span>
-                    </div>
-                    <div className="text-sm font-medium">Pas encore de données</div>
-                    <div className="text-xs text-muted mt-1 max-w-[250px]">
-                      Ajoutez des lots et des dépenses pour obtenir des recommandations personnalisées.
-                    </div>
+                    <div className="text-sm font-medium">L'assistant collecte des données...</div>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-3">
                     {insights.map((i, idx) => (
                       <div
                         key={idx}
                         className={cn(
-                          "rounded-2xl border p-4 transition-all hover:-translate-y-0.5 hover:shadow-sm",
+                          "rounded-2xl border p-4 transition-all flex gap-3 items-start",
                           i.level === "danger" 
-                            ? "border-danger/20 bg-danger/5 hover:border-danger/30" 
+                            ? "border-danger/20 bg-danger/5" 
                             : i.level === "warning" 
-                              ? "border-warning/30 bg-warning/5 hover:border-warning/40"
+                              ? "border-warning/30 bg-warning/5"
                               : i.level === "success"
-                                ? "border-primary/30 bg-primary/10 hover:border-primary/40"
-                                : "border-primary/20 bg-primary/5 hover:border-primary/30"
+                                ? "border-primary/30 bg-primary/10"
+                                : "border-primary/20 bg-primary/5"
                         )}
                       >
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-base leading-none">
-                            {i.level === "danger" ? "🚨" : i.level === "warning" ? "⚠️" : i.level === "success" ? "✅" : "💡"}
-                          </span>
+                        <div className="text-2xl mt-0.5 shrink-0">
+                          {i.icon || "💡"}
+                        </div>
+                        <div>
                           <div className={cn(
-                            "text-sm font-semibold tracking-tight",
+                            "text-sm font-semibold tracking-tight mb-1",
                             i.level === "danger" ? "text-danger" : i.level === "warning" ? "text-warning-foreground" : "text-primary"
                           )}>
                             {i.titre}
                           </div>
+                          <div className="text-sm text-foreground/80 leading-relaxed">{i.detail}</div>
                         </div>
-                        <div className="text-xs text-muted/90 leading-relaxed">{i.detail}</div>
                       </div>
                     ))}
                   </div>
