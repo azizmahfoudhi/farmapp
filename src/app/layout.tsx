@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 
@@ -11,6 +11,16 @@ export const metadata: Metadata = {
   title: "Senya",
   description:
     "Gestion et optimisation d’une oliveraie: coûts, production, rentabilité et projections.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    title: "Senya",
+    statusBarStyle: "default",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#10b981",
 };
 
 export default function RootLayout({

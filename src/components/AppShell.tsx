@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
@@ -30,6 +32,15 @@ export function AppShell({
   actions?: React.ReactNode;
   children: React.ReactNode;
 }) {
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then((registration) => console.log("SW registered:", registration))
+        .catch((error) => console.log("SW registration failed:", error));
+    }
+  }, []);
+
   return (
     <div className="min-h-dvh flex flex-col bg-background text-foreground transition-colors duration-300">
       <header className="sticky top-0 z-10 border-b border-border/40 bg-background/70 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/70 shadow-sm">
