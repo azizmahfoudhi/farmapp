@@ -8,7 +8,7 @@ import { ageYearsFromISO, batchEstimatedProductionKg, sumExpensesForBatch } from
 import { formatKg, formatMoneyDT, formatNumber } from "@/lib/format";
 import { todayISO } from "@/lib/derive";
 import { useFarmData } from "@/lib/useFarmData";
-import { Trees, Plus, Map, Droplets, DropletOff } from "lucide-react";
+import { Trees, Plus, Map as MapIcon, Droplets, DropletOff } from "lucide-react";
 
 export default function LotsPage() {
   const farm = useFarmData();
@@ -51,7 +51,7 @@ export default function LotsPage() {
             </CardHeader>
             <CardContent className="p-4 pt-0 flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                <Map className="w-5 h-5" />
+                <MapIcon className="w-5 h-5" />
               </div>
               <div className="text-2xl font-bold tracking-tight">
                 {farm.lots.length}
@@ -63,7 +63,7 @@ export default function LotsPage() {
         {farm.lots.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-8 text-center border border-dashed border-border rounded-2xl bg-muted/5 mt-4">
             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-              <Map className="w-8 h-8 text-primary" />
+              <MapIcon className="w-8 h-8 text-primary" />
             </div>
             <h3 className="text-lg font-bold mb-2">Aucun lot configuré</h3>
             <p className="text-muted text-sm max-w-[300px] mb-6">
