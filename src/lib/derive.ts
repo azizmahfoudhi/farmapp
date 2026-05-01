@@ -190,6 +190,83 @@ export function buildInsights(state: FarmState, weather: WeatherData | null = nu
     });
   }
 
-  return insights.slice(0, 4);
+  // 6. Seasonal Calendar (Tunisia/Kairouan)
+  const currentMonth = today.getMonth() + 1; // 1-12
+  if (currentMonth === 1 || currentMonth === 2) {
+    insights.push({
+      level: "info",
+      titre: "Calendrier: Taille & Engrais",
+      detail: "C'est la période idéale pour la taille de fructification et l'apport d'engrais organique avant le réveil végétatif du printemps.",
+      icon: "✂️"
+    });
+  } else if (currentMonth === 4 || currentMonth === 5) {
+    insights.push({
+      level: "warning",
+      titre: "Calendrier: Floraison critique",
+      detail: "Période de floraison. Assurez-vous d'éviter tout stress hydrique pour maximiser la formation des fruits.",
+      icon: "🌸"
+    });
+  } else if (currentMonth >= 10 && currentMonth <= 12) {
+    insights.push({
+      level: "success",
+      titre: "Calendrier: Préparation Récolte",
+      detail: "La saison de récolte approche ! Pensez à vérifier votre matériel et à budgétiser la main-d'œuvre.",
+      icon: "🧺"
+    });
+  }
+
+  // 7. Preventative Action (Pest Control)
+  if (currentMonth >= 4 && currentMonth <= 6) {
+    const hasPestControl = state.depenses.some(d => d.categorie === "entretien" && d.dateISO >= thirtyDaysAgo);
+    if (!hasPestControl && state.lots.length > 0) {
+      insights.push({
+        level: "warning",
+        titre: "Traitements Préventifs",
+        detail: "Pensez aux traitements contre la teigne ou la mouche de l'olivier. Aucune dépense de traitement n'a été notée récemment.",
+        icon: "🐛"
+      });
+    }
+  }
+
+  // 8. Nasrallah Context (Bour vs Irrigué)
+  const hasBour = state.lots.some(l => l.irrigation === "non_irrigue");
+  if (hasBour && currentMonth >= 6 && currentMonth <= 8) {
+    insights.push({
+      level: "warning",
+      titre: "Terres en Bour (Nasrallah)",
+      detail: "Pour vos lots non irrigués, pensez au travail du sol superficiel pour casser la croûte et conserver l'humidité résiduelle face aux chaleurs de Kairouan.",
+      icon: "🏜️"
+    });
+  }
+
+  // 9. Variety Intelligence
+  const typeById = new Map(state.types.map(t => [t.id, t]));
+  const hasChemlali = state.lots.some(l => {
+    const type = typeById.get(l.typeId);
+    return type && type.nom.toLowerCase().includes("chemlali");
+  });
+  if (hasChemlali) {
+    insights.push({
+      level: "info",
+      titre: "Spécificité Chemlali",
+      detail: "Vos lots de Chemlali sont sujets à l'alternance. Une taille douce et régulière aidera à stabiliser la production d'une année sur l'autre.",
+      icon: "🌳"
+    });
+  }
+
+  const hasKoroneiki = state.lots.some(l => {
+    const type = typeById.get(l.typeId);
+    return type && type.nom.toLowerCase().includes("koroneiki");
+  });
+  if (hasKoroneiki) {
+    insights.push({
+      level: "info",
+      titre: "Conduite Intensive",
+      detail: "Le Koroneiki nécessite des apports d'eau et de nutriments très réguliers pour maintenir son rendement élevé.",
+      icon: "💧"
+    });
+  }
+
+  return insights.slice(0, 5);
 }
 

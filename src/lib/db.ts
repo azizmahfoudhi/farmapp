@@ -249,3 +249,49 @@ export async function listScenarios(): Promise<Scenario[]> {
   return (data as any[]).map(mapScenario);
 }
 
+export async function updateTreeType(id: UUID, input: Partial<Omit<TreeType, "id">>) {
+  const sb = supabaseBrowser();
+  const payload: any = {};
+  if (input.nom !== undefined) payload.nom = input.nom;
+  if (input.rendementMaxKgParArbre !== undefined) payload.rendement_max_kg_par_arbre = input.rendementMaxKgParArbre;
+  const { error } = await sb.from("tree_types").update(payload).eq("id", id);
+  if (error) throw error;
+}
+
+export async function updateBatch(id: UUID, input: Partial<Omit<Batch, "id">>) {
+  const sb = supabaseBrowser();
+  const payload: any = {};
+  if (input.nom !== undefined) payload.nom = input.nom;
+  if (input.typeId !== undefined) payload.type_id = input.typeId;
+  if (input.datePlantationISO !== undefined) payload.date_plantation = input.datePlantationISO;
+  if (input.nbArbres !== undefined) payload.nb_arbres = input.nbArbres;
+  if (input.irrigation !== undefined) payload.irrigation = input.irrigation;
+  const { error } = await sb.from("batches").update(payload).eq("id", id);
+  if (error) throw error;
+}
+
+export async function updateExpense(id: UUID, input: Partial<Omit<Expense, "id">>) {
+  const sb = supabaseBrowser();
+  const payload: any = {};
+  if (input.dateISO !== undefined) payload.date = input.dateISO;
+  if (input.montant !== undefined) payload.montant = input.montant;
+  if (input.categorie !== undefined) payload.categorie = input.categorie;
+  if (input.lotId !== undefined) payload.lot_id = input.lotId;
+  if (input.note !== undefined) payload.note = input.note;
+  const { error } = await sb.from("expenses").update(payload).eq("id", id);
+  if (error) throw error;
+}
+
+export async function updateRecurring(id: UUID, input: Partial<Omit<RecurringExpense, "id">>) {
+  const sb = supabaseBrowser();
+  const payload: any = {};
+  if (input.nom !== undefined) payload.nom = input.nom;
+  if (input.montantMensuel !== undefined) payload.montant_mensuel = input.montantMensuel;
+  if (input.categorie !== undefined) payload.categorie = input.categorie;
+  if (input.debutISO !== undefined) payload.debut = input.debutISO;
+  if (input.finISO !== undefined) payload.fin = input.finISO;
+  if (input.lotId !== undefined) payload.lot_id = input.lotId;
+  const { error } = await sb.from("recurring_expenses").update(payload).eq("id", id);
+  if (error) throw error;
+}
+

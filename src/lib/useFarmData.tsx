@@ -18,6 +18,10 @@ import {
   listScenarios,
   listTreeTypes,
   updateSettings,
+  updateTreeType as dbUpdateTreeType,
+  updateBatch as dbUpdateBatch,
+  updateExpense as dbUpdateExpense,
+  updateRecurring as dbUpdateRecurring,
 } from "@/lib/db";
 
 export function useFarmData() {
@@ -75,6 +79,10 @@ export function useFarmData() {
         const created = await createTreeType({ nom, rendementMaxKgParArbre });
         setTypes((t) => [created, ...t]);
       },
+      async updateTreeType(id: UUID, input: Partial<Omit<TreeType, "id">>) {
+        await dbUpdateTreeType(id, input);
+        setTypes((t) => t.map((x) => (x.id === id ? { ...x, ...input } : x)));
+      },
       async removeTreeType(id: UUID) {
         await deleteTreeType(id);
         setTypes((t) => t.filter((x) => x.id !== id));
@@ -83,6 +91,10 @@ export function useFarmData() {
       async addBatch(input: Omit<Batch, "id">) {
         const created = await createBatch(input);
         setLots((l) => [created, ...l]);
+      },
+      async updateBatch(id: UUID, input: Partial<Omit<Batch, "id">>) {
+        await dbUpdateBatch(id, input);
+        setLots((l) => l.map((x) => (x.id === id ? { ...x, ...input } : x)));
       },
       async removeBatch(id: UUID) {
         await deleteBatch(id);
@@ -93,6 +105,10 @@ export function useFarmData() {
         const created = await createExpense(input);
         setDepenses((d) => [created, ...d]);
       },
+      async updateExpense(id: UUID, input: Partial<Omit<Expense, "id">>) {
+        await dbUpdateExpense(id, input);
+        setDepenses((d) => d.map((x) => (x.id === id ? { ...x, ...input } : x)));
+      },
       async removeExpense(id: UUID) {
         await deleteExpense(id);
         setDepenses((d) => d.filter((x) => x.id !== id));
@@ -101,6 +117,10 @@ export function useFarmData() {
       async addRecurring(input: Omit<RecurringExpense, "id">) {
         const created = await createRecurring(input);
         setRecurrents((r) => [created, ...r]);
+      },
+      async updateRecurring(id: UUID, input: Partial<Omit<RecurringExpense, "id">>) {
+        await dbUpdateRecurring(id, input);
+        setRecurrents((r) => r.map((x) => (x.id === id ? { ...x, ...input } : x)));
       },
       async removeRecurring(id: UUID) {
         await deleteRecurring(id);

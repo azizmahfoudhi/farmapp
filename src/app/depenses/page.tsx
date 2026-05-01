@@ -10,7 +10,7 @@ import type { ExpenseCategory } from "@/lib/domain";
 import { EXPENSE_CATEGORY_LABEL } from "@/lib/domain";
 import { formatDateLong, formatMoneyDT } from "@/lib/format";
 import { useFarmData } from "@/lib/useFarmData";
-import { Wallet, RefreshCw, Plus, Trash2, CalendarDays } from "lucide-react";
+import { Wallet, RefreshCw, Plus, Trash2, CalendarDays, Edit2, X, Check } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 const categories: ExpenseCategory[] = [
@@ -25,37 +25,12 @@ const categories: ExpenseCategory[] = [
 
 export default function DepensesPage() {
   const farm = useFarmData();
-  const [tab, setTab] = React.useState<"ponctuel" | "recurrent">("ponctuel");
 
   const totalPonctuel = farm.depenses.reduce((acc, d) => acc + d.montant, 0);
   const totalRecurrentMensuel = farm.recurrents.reduce((acc, r) => acc + r.montantMensuel, 0);
 
   return (
-    <AppShell
-      title="Dépenses"
-      actions={
-        <div className="flex bg-muted/30 p-1 rounded-xl">
-          <button
-            className={cn(
-              "px-4 py-1.5 text-sm font-medium rounded-lg transition-all",
-              tab === "ponctuel" ? "bg-background shadow-sm text-foreground" : "text-muted hover:text-foreground/80"
-            )}
-            onClick={() => setTab("ponctuel")}
-          >
-            Ponctuelles
-          </button>
-          <button
-            className={cn(
-              "px-4 py-1.5 text-sm font-medium rounded-lg transition-all",
-              tab === "recurrent" ? "bg-background shadow-sm text-foreground" : "text-muted hover:text-foreground/80"
-            )}
-            onClick={() => setTab("recurrent")}
-          >
-            Récurrentes
-          </button>
-        </div>
-      }
-    >
+    <AppShell title="Dépenses">
       <div className="grid grid-cols-2 gap-3 mb-6">
         <Card className="border-border/50 bg-card/50 backdrop-blur-xl shadow-sm">
           <CardHeader className="p-4 pb-2">
@@ -85,8 +60,20 @@ export default function DepensesPage() {
         </Card>
       </div>
 
-      <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-        {tab === "ponctuel" ? <OneOffExpenses /> : <RecurringExpenses />}
+      <div className="flex flex-col gap-8">
+        <div>
+          <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+            <Wallet className="w-5 h-5" /> Dépenses Ponctuelles
+          </h2>
+          <OneOffExpenses />
+        </div>
+        
+        <div>
+          <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-orange-500">
+            <RefreshCw className="w-5 h-5" /> Charges Récurrentes (Fixes)
+          </h2>
+          <RecurringExpenses />
+        </div>
       </div>
     </AppShell>
   );
@@ -172,24 +159,7 @@ function OneOffExpenses() {
         </CardHeader>
         <CardContent className="grid gap-2">
           {farm.depenses.map((d) => (
-            <div key={d.id} className="group flex items-start justify-between gap-3 rounded-xl border border-border/40 bg-background/40 p-3 hover:border-border transition-colors">
-              <div className="flex gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-full bg-muted/10 flex items-center justify-center shrink-0">
-                  <Wallet className="w-4 h-4 text-muted" />
-                </div>
-                <div>
-                  <div className="text-sm font-bold">{formatMoneyDT(d.montant)}</div>
-                  <div className="text-xs text-muted mt-0.5">
-                    {formatDateLong(d.dateISO)} · <span className="font-medium text-foreground/80">{EXPENSE_CATEGORY_LABEL[d.categorie as ExpenseCategory]}</span>
-                    {d.lotId && farm.lots.find(l => l.id === d.lotId) ? ` · ${farm.lots.find(l => l.id === d.lotId)?.nom}` : ""}
-                  </div>
-                  {d.note ? <div className="mt-1 text-xs text-muted/80 italic line-clamp-1">{d.note}</div> : null}
-                </div>
-              </div>
-              <Button variant="ghost" size="sm" className="text-danger opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => farm.actions.removeExpense(d.id)}>
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </div>
+            <ExpenseRow key={d.id} d={d} farm={farm} />
           ))}
           {farm.depenses.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-8 text-center border border-dashed border-border rounded-xl bg-muted/5">
@@ -285,26 +255,7 @@ function RecurringExpenses() {
         </CardHeader>
         <CardContent className="grid gap-2">
           {farm.recurrents.map((r) => (
-            <div key={r.id} className="group flex items-start justify-between gap-3 rounded-xl border border-border/40 bg-background/40 p-3 hover:border-border transition-colors">
-              <div className="flex gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center shrink-0">
-                  <RefreshCw className="w-4 h-4 text-orange-500" />
-                </div>
-                <div>
-                  <div className="text-sm font-bold">{r.nom}</div>
-                  <div className="text-xs text-muted mt-0.5 flex flex-wrap gap-x-2 gap-y-1">
-                    <span className="font-semibold text-foreground/80">{formatMoneyDT(r.montantMensuel)} / mois</span>
-                    <span>•</span>
-                    <span>{EXPENSE_CATEGORY_LABEL[r.categorie as ExpenseCategory]}</span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1"><CalendarDays className="w-3 h-3" /> {formatDateLong(r.debutISO)}</span>
-                  </div>
-                </div>
-              </div>
-              <Button variant="ghost" size="sm" className="text-danger opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => farm.actions.removeRecurring(r.id)}>
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </div>
+            <RecurringRow key={r.id} r={r} farm={farm} />
           ))}
           {farm.recurrents.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-8 text-center border border-dashed border-border rounded-xl bg-muted/5">
@@ -314,6 +265,158 @@ function RecurringExpenses() {
           ) : null}
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function ExpenseRow({ d, farm }: { d: any; farm: ReturnType<typeof useFarmData> }) {
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [montant, setMontant] = React.useState(String(d.montant));
+  const [dateISO, setDateISO] = React.useState(d.dateISO);
+  const [categorie, setCategorie] = React.useState(d.categorie);
+  const [lotId, setLotId] = React.useState(d.lotId || "");
+  const [note, setNote] = React.useState(d.note || "");
+
+  async function handleSave() {
+    if (!montant || Number(montant) <= 0) return;
+    await farm.actions.updateExpense(d.id, {
+      montant: Number(montant),
+      dateISO,
+      categorie,
+      lotId: lotId || undefined,
+      note: note.trim() || undefined,
+    });
+    setIsEditing(false);
+  }
+
+  if (isEditing) {
+    return (
+      <div className="flex flex-col gap-2 rounded-xl border border-primary/50 bg-primary/5 p-3 animate-in fade-in zoom-in-95">
+        <div className="flex items-center justify-between">
+          <div className="text-sm font-semibold">Modifier dépense</div>
+          <div className="flex gap-1">
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-success" onClick={handleSave}><Check className="w-4 h-4" /></Button>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted" onClick={() => setIsEditing(false)}><X className="w-4 h-4" /></Button>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <Input inputMode="decimal" value={montant} onChange={e => setMontant(e.target.value)} className="h-8 bg-background" placeholder="Montant" />
+          <Input type="date" value={dateISO} onChange={e => setDateISO(e.target.value)} className="h-8 bg-background" />
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <Select value={categorie} onChange={e => setCategorie(e.target.value as ExpenseCategory)}>
+            {categories.map((c) => <option key={c} value={c}>{EXPENSE_CATEGORY_LABEL[c]}</option>)}
+          </Select>
+          <Select value={lotId} onChange={e => setLotId(e.target.value)}>
+            <option value="">-- Global --</option>
+            {farm.lots.map((l) => <option key={l.id} value={l.id}>{l.nom}</option>)}
+          </Select>
+        </div>
+        <Input value={note} onChange={e => setNote(e.target.value)} className="h-8 bg-background" placeholder="Note" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="group flex items-start justify-between gap-3 rounded-xl border border-border/40 bg-background/40 p-3 hover:border-border transition-colors">
+      <div className="flex gap-3 min-w-0">
+        <div className="w-10 h-10 rounded-full bg-muted/10 flex items-center justify-center shrink-0">
+          <Wallet className="w-4 h-4 text-muted" />
+        </div>
+        <div>
+          <div className="text-sm font-bold">{formatMoneyDT(d.montant)}</div>
+          <div className="text-xs text-muted mt-0.5">
+            {formatDateLong(d.dateISO)} · <span className="font-medium text-foreground/80">{EXPENSE_CATEGORY_LABEL[d.categorie as ExpenseCategory]}</span>
+            {d.lotId && farm.lots.find(l => l.id === d.lotId) ? ` · ${farm.lots.find(l => l.id === d.lotId)?.nom}` : ""}
+          </div>
+          {d.note ? <div className="mt-1 text-xs text-muted/80 italic line-clamp-1">{d.note}</div> : null}
+        </div>
+      </div>
+      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted" onClick={() => setIsEditing(true)}>
+          <Edit2 className="w-4 h-4" />
+        </Button>
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-danger" onClick={() => farm.actions.removeExpense(d.id)}>
+          <Trash2 className="w-4 h-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function RecurringRow({ r, farm }: { r: any; farm: ReturnType<typeof useFarmData> }) {
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [nom, setNom] = React.useState(r.nom);
+  const [montantMensuel, setMontantMensuel] = React.useState(String(r.montantMensuel));
+  const [categorie, setCategorie] = React.useState(r.categorie);
+  const [debutISO, setDebutISO] = React.useState(r.debutISO);
+  const [lotId, setLotId] = React.useState(r.lotId || "");
+
+  async function handleSave() {
+    if (!montantMensuel || Number(montantMensuel) <= 0 || !nom.trim()) return;
+    await farm.actions.updateRecurring(r.id, {
+      nom: nom.trim(),
+      montantMensuel: Number(montantMensuel),
+      categorie,
+      debutISO,
+      lotId: lotId || undefined,
+    });
+    setIsEditing(false);
+  }
+
+  if (isEditing) {
+    return (
+      <div className="flex flex-col gap-2 rounded-xl border border-primary/50 bg-primary/5 p-3 animate-in fade-in zoom-in-95">
+        <div className="flex items-center justify-between">
+          <div className="text-sm font-semibold">Modifier charge fixe</div>
+          <div className="flex gap-1">
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-success" onClick={handleSave}><Check className="w-4 h-4" /></Button>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted" onClick={() => setIsEditing(false)}><X className="w-4 h-4" /></Button>
+          </div>
+        </div>
+        <Input value={nom} onChange={e => setNom(e.target.value)} className="h-8 bg-background" placeholder="Nom" />
+        <div className="grid grid-cols-2 gap-2">
+          <Input inputMode="decimal" value={montantMensuel} onChange={e => setMontantMensuel(e.target.value)} className="h-8 bg-background" placeholder="Montant/mois" />
+          <Input type="date" value={debutISO} onChange={e => setDebutISO(e.target.value)} className="h-8 bg-background" />
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <Select value={categorie} onChange={e => setCategorie(e.target.value as ExpenseCategory)}>
+            {categories.map((c) => <option key={c} value={c}>{EXPENSE_CATEGORY_LABEL[c]}</option>)}
+          </Select>
+          <Select value={lotId} onChange={e => setLotId(e.target.value)}>
+            <option value="">-- Global --</option>
+            {farm.lots.map((l) => <option key={l.id} value={l.id}>{l.nom}</option>)}
+          </Select>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="group flex items-start justify-between gap-3 rounded-xl border border-border/40 bg-background/40 p-3 hover:border-border transition-colors">
+      <div className="flex gap-3 min-w-0">
+        <div className="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center shrink-0">
+          <RefreshCw className="w-4 h-4 text-orange-500" />
+        </div>
+        <div>
+          <div className="text-sm font-bold">{r.nom}</div>
+          <div className="text-xs text-muted mt-0.5 flex flex-wrap gap-x-2 gap-y-1">
+            <span className="font-semibold text-foreground/80">{formatMoneyDT(r.montantMensuel)} / mois</span>
+            <span>•</span>
+            <span>{EXPENSE_CATEGORY_LABEL[r.categorie as ExpenseCategory]}</span>
+            <span>•</span>
+            <span className="flex items-center gap-1"><CalendarDays className="w-3 h-3" /> {formatDateLong(r.debutISO)}</span>
+          </div>
+        </div>
+      </div>
+      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted" onClick={() => setIsEditing(true)}>
+          <Edit2 className="w-4 h-4" />
+        </Button>
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-danger" onClick={() => farm.actions.removeRecurring(r.id)}>
+          <Trash2 className="w-4 h-4" />
+        </Button>
+      </div>
     </div>
   );
 }

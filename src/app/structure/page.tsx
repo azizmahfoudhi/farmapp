@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/Input";
 import { useFarmData } from "@/lib/useFarmData";
 import { formatMoneyDT } from "@/lib/format";
-import { CheckCircle2, Trees, Trash2, Sprout } from "lucide-react";
+import { CheckCircle2, Trees, Trash2, Sprout, Edit2, X, Check } from "lucide-react";
 
 export default function StructurePage() {
   const farm = useFarmData();
@@ -138,27 +138,7 @@ function TreeTypesCard({ farm }: { farm: ReturnType<typeof useFarmData> }) {
 
         <div className="grid gap-2">
           {farm.types.map((t) => (
-            <div key={t.id} className="group flex items-center justify-between gap-3 rounded-xl border border-border/40 bg-card p-3 hover:border-border transition-colors">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                  <Trees className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-sm font-semibold truncate">{t.nom}</div>
-                  <div className="text-xs text-muted flex items-center gap-1">
-                    Rendement max: <span className="font-medium text-foreground">{t.rendementMaxKgParArbre} kg</span>
-                  </div>
-                </div>
-              </div>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-danger opacity-0 group-hover:opacity-100 transition-opacity" 
-                onClick={() => farm.actions.removeTreeType(t.id)}
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </div>
+            <TreeTypeRow key={t.id} t={t} farm={farm} />
           ))}
           {farm.types.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-6 text-center border border-dashed border-border rounded-xl bg-muted/10">
@@ -262,3 +242,73 @@ function CreateBatchCard({ farm }: { farm: ReturnType<typeof useFarmData> }) {
   );
 }
 
+function TreeTypeRow({ t, farm }: { t: any; farm: ReturnType<typeof useFarmData> }) {
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [editNom, setEditNom] = React.useState(t.nom);
+  const [editRend, setEditRend] = React.useState(String(t.rendementMaxKgParArbre));
+
+  async function handleSave() {
+    if (!editNom.trim()) return;
+    await farm.actions.updateTreeType(t.id, {
+      nom: editNom.trim(),
+      rendementMaxKgParArbre: Number(editRend || 0),
+    });
+    setIsEditing(false);
+  }
+
+  if (isEditing) {
+    return (
+      <div className="flex items-center gap-2 rounded-xl border border-primary/50 bg-primary/5 p-3 animate-in fade-in zoom-in-95">
+        <div className="flex-1 grid grid-cols-[1fr_80px] gap-2">
+          <Input 
+            value={editNom} 
+            onChange={e => setEditNom(e.target.value)} 
+            className="h-8 text-sm bg-background" 
+          />
+          <Input 
+            inputMode="decimal"
+            value={editRend} 
+            onChange={e => setEditRend(e.target.value)} 
+            className="h-8 text-sm bg-background" 
+          />
+        </div>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-primary" onClick={handleSave}>
+            <Check className="w-4 h-4" />
+          </Button>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted" onClick={() => {
+            setIsEditing(false);
+            setEditNom(t.nom);
+            setEditRend(String(t.rendementMaxKgParArbre));
+          }}>
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="group flex items-center justify-between gap-3 rounded-xl border border-border/40 bg-card p-3 hover:border-border transition-colors">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+          <Trees className="w-5 h-5" />
+        </div>
+        <div>
+          <div className="text-sm font-semibold truncate">{t.nom}</div>
+          <div className="text-xs text-muted flex items-center gap-1">
+            Rendement max: <span className="font-medium text-foreground">{t.rendementMaxKgParArbre} kg</span>
+          </div>
+        </div>
+      </div>
+      <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted hover:text-primary" onClick={() => setIsEditing(true)}>
+          <Edit2 className="w-4 h-4" />
+        </Button>
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-danger" onClick={() => farm.actions.removeTreeType(t.id)}>
+          <Trash2 className="w-4 h-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
