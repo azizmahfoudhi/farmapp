@@ -8,80 +8,141 @@ import { ageYearsFromISO, batchEstimatedProductionKg, sumExpensesForBatch } from
 import { formatKg, formatMoneyDT, formatNumber } from "@/lib/format";
 import { todayISO } from "@/lib/derive";
 import { useFarmData } from "@/lib/useFarmData";
+import { Trees, Plus, Map, Droplets, DropletOff } from "lucide-react";
 
 export default function LotsPage() {
   const farm = useFarmData();
   const typeById = new Map(farm.types.map((t) => [t.id, t]));
   const tISO = todayISO();
 
-  return (
-    <AppShell title="Lots">
-      <div className="grid gap-3">
-        {farm.lots.map((lot) => {
-          const type = typeById.get(lot.typeId);
-          const age = ageYearsFromISO(lot.datePlantationISO, tISO);
-          const prod = type ? batchEstimatedProductionKg({ batch: lot, type, atISO: tISO }) : 0;
-          const cost = sumExpensesForBatch(
-            {
-              settings: farm.settings,
-              types: farm.types,
-              lots: farm.lots,
-              depenses: farm.depenses,
-              recurrents: farm.recurrents,
-              scenarios: farm.scenarios,
-            },
-            lot.id,
-          );
-          return (
-            <Card key={lot.id}>
-              <CardHeader>
-                <div className="min-w-0">
-                  <CardTitle className="truncate">{lot.nom}</CardTitle>
-                  <CardDescription>
-                    {type?.nom ?? "Type inconnu"} · {formatNumber(lot.nbArbres)} arbres ·{" "}
-                    {formatNumber(age, 1)} ans · {lot.irrigation === "irrigue" ? "Irrigué" : "Non irrigué"}
-                  </CardDescription>
-                </div>
-              </CardHeader>
-              <CardContent className="grid gap-2">
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="rounded-xl border border-border p-3">
-                    <div className="text-xs text-muted">Production estimée</div>
-                    <div className="mt-1 text-base font-semibold">{formatKg(prod)}</div>
-                  </div>
-                  <div className="rounded-xl border border-border p-3">
-                    <div className="text-xs text-muted">Coûts (ponctuels)</div>
-                    <div className="mt-1 text-base font-semibold">{formatMoneyDT(cost)}</div>
-                  </div>
-                </div>
+  const totalTrees = farm.lots.reduce((acc, l) => acc + l.nbArbres, 0);
 
-                <div className="flex items-center justify-between gap-2">
-                  <Link className="text-sm font-medium text-primary" href={`/lots/${lot.id}`}>
-                    Voir le détail →
-                  </Link>
-                  <Button variant="ghost" onClick={() => farm.actions.removeBatch(lot.id)}>
-                    Supprimer
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-        {farm.lots.length === 0 ? (
-          <Card>
-            <CardHeader>
-              <div>
-                <CardTitle>Aucun lot</CardTitle>
-                <CardDescription>Créez un lot pour obtenir des estimations.</CardDescription>
-              </div>
+  return (
+    <AppShell 
+      title="Mes Lots" 
+      actions={
+        <Link href="/structure">
+          <Button size="sm" className="gap-2">
+            <Plus className="w-4 h-4" />
+            Nouveau lot
+          </Button>
+        </Link>
+      }
+    >
+      <div className="grid gap-4">
+        {/* Summary Header */}
+        <div className="grid grid-cols-2 gap-3 mb-2">
+          <Card className="border-border/50 bg-card/50 backdrop-blur-xl shadow-sm">
+            <CardHeader className="p-4 pb-2">
+              <CardTitle className="text-xs font-medium text-muted uppercase tracking-wider">Total Arbres</CardTitle>
             </CardHeader>
-            <CardContent>
-              <Link className="text-sm font-medium text-primary" href="/structure">
-                Aller à Structure →
-              </Link>
+            <CardContent className="p-4 pt-0 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                <Trees className="w-5 h-5" />
+              </div>
+              <div className="text-2xl font-bold tracking-tight">
+                {formatNumber(totalTrees)}
+              </div>
             </CardContent>
           </Card>
-        ) : null}
+          <Card className="border-border/50 bg-card/50 backdrop-blur-xl shadow-sm">
+            <CardHeader className="p-4 pb-2">
+              <CardTitle className="text-xs font-medium text-muted uppercase tracking-wider">Nombre de Lots</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-0 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                <Map className="w-5 h-5" />
+              </div>
+              <div className="text-2xl font-bold tracking-tight">
+                {farm.lots.length}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {farm.lots.length === 0 ? (
+          <div className="flex flex-col items-center justify-center p-8 text-center border border-dashed border-border rounded-2xl bg-muted/5 mt-4">
+            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+              <Map className="w-8 h-8 text-primary" />
+            </div>
+            <h3 className="text-lg font-bold mb-2">Aucun lot configuré</h3>
+            <p className="text-muted text-sm max-w-[300px] mb-6">
+              Séparez votre ferme en lots pour suivre précisément le rendement et les coûts selon l'âge et la variété.
+            </p>
+            <Link href="/structure">
+              <Button>Créer mon premier lot</Button>
+            </Link>
+          </div>
+        ) : (
+          <div className="grid sm:grid-cols-2 gap-4">
+            {farm.lots.map((lot) => {
+              const type = typeById.get(lot.typeId);
+              const age = ageYearsFromISO(lot.datePlantationISO, tISO);
+              const prod = type ? batchEstimatedProductionKg({ batch: lot, type, atISO: tISO }) : 0;
+              const cost = sumExpensesForBatch(
+                {
+                  settings: farm.settings,
+                  types: farm.types,
+                  lots: farm.lots,
+                  depenses: farm.depenses,
+                  recurrents: farm.recurrents,
+                  scenarios: farm.scenarios,
+                },
+                lot.id,
+              );
+              return (
+                <Card key={lot.id} className="border-border/50 bg-card/50 backdrop-blur-xl shadow-sm hover:shadow-md transition-shadow group flex flex-col">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between min-w-0 gap-4">
+                      <div>
+                        <CardTitle className="truncate text-lg mb-1">{lot.nom}</CardTitle>
+                        <CardDescription className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <span className="font-medium text-foreground/80">{type?.nom ?? "Type inconnu"}</span>
+                          <span>•</span>
+                          <span>{formatNumber(age, 1)} ans</span>
+                          <span>•</span>
+                          <span className="flex items-center gap-1">
+                            {lot.irrigation === "irrigue" ? (
+                              <><Droplets className="w-3 h-3 text-blue-500" /> Irrigué</>
+                            ) : (
+                              <><DropletOff className="w-3 h-3 text-muted" /> Bour</>
+                            )}
+                          </span>
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="grid gap-4 flex-1 flex flex-col">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="rounded-xl border border-border/40 bg-background/50 p-3">
+                        <div className="text-xs text-muted font-medium mb-1">Total Arbres</div>
+                        <div className="text-lg font-bold">{formatNumber(lot.nbArbres)}</div>
+                      </div>
+                      <div className="rounded-xl border border-border/40 bg-background/50 p-3">
+                        <div className="text-xs text-muted font-medium mb-1">Rendement estimé</div>
+                        <div className="text-lg font-bold text-primary">{formatKg(prod)}</div>
+                      </div>
+                    </div>
+
+                    <div className="mt-auto flex items-center justify-between pt-2">
+                      <div className="text-xs text-muted">
+                        Investissement: <span className="font-semibold text-foreground">{formatMoneyDT(cost)}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button variant="ghost" size="sm" className="text-danger opacity-0 group-hover:opacity-100 transition-opacity h-8 px-2" onClick={() => farm.actions.removeBatch(lot.id)}>
+                          Supprimer
+                        </Button>
+                        <Link href={`/lots/${lot.id}`}>
+                          <Button size="sm" variant="secondary" className="h-8">Détails</Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
       </div>
     </AppShell>
   );
