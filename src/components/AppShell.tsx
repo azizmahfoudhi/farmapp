@@ -10,8 +10,7 @@ import {
   Sprout,
   Wallet,
   Layers,
-  LineChart,
-  Calendar,
+  BrainCircuit,
 } from "lucide-react";
 
 const nav = [
@@ -19,7 +18,7 @@ const nav = [
   { href: "/structure", label: "Structure", icon: Sprout },
   { href: "/lots", label: "Lots", icon: Layers },
   { href: "/depenses", label: "Dépenses", icon: Wallet },
-  { href: "/calendrier", label: "Calendrier", icon: Calendar },
+  { href: "/memory", label: "Mémoire", icon: BrainCircuit },
 ];
 
 import Image from "next/image";

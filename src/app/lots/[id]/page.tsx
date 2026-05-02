@@ -43,6 +43,7 @@ export default function LotDetailPage() {
     types: farm.types,
     lots: farm.lots,
     depenses: farm.depenses,
+    yields: farm.yields,
     tasks: farm.tasks,
     treatments: farm.treatments,
     scenarios: farm.scenarios,

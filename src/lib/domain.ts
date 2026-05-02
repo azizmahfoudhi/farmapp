@@ -68,6 +68,14 @@ export type Treatment = {
   notes?: string;
 };
 
+export type YieldRecord = {
+  id: UUID;
+  lotId: UUID;
+  quantiteKg: number;
+  dateISO: string;
+  rendementHuilePct?: number;
+  note?: string;
+};
 
 export type FarmSettings = {
   surfaceHa: number;
@@ -89,9 +97,9 @@ export type FarmState = {
   types: TreeType[];
   lots: Batch[];
   depenses: Expense[];
+  yields: YieldRecord[];
   tasks: FarmTask[];
   treatments: Treatment[];
 
   scenarios: Scenario[];
 };
-

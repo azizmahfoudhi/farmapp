@@ -7,6 +7,7 @@ import type {
   Scenario,
   TreeType,
   Treatment,
+  YieldRecord,
   UUID,
 } from "@/lib/domain";
 import { supabaseBrowser } from "@/lib/supabaseClient";
@@ -125,6 +126,17 @@ function mapTreatment(r: any): Treatment {
   };
 }
 
+function mapYield(r: any) {
+  return {
+    id: r.id,
+    lotId: r.lot_id,
+    quantiteKg: Number(r.quantite_kg),
+    dateISO: r.annee ? `${r.annee}-01-01` : "2000-01-01", // fallback if db is different
+    rendementHuilePct: r.rendement_huile_pct ? Number(r.rendement_huile_pct) : undefined,
+    note: r.note ?? undefined,
+  };
+}
+
 export async function getOrCreateSettings(): Promise<{ rowId: UUID; settings: FarmSettings }> {
   const sb = supabaseBrowser();
   const { data, error } = await sb.from("farm_settings").select("*").limit(1).maybeSingle();
@@ -237,7 +249,35 @@ export async function deleteExpense(id: UUID) {
   if (error) throw error;
 }
 
+export async function listYields(): Promise<YieldRecord[]> {
+  const sb = supabaseBrowser();
+  const { data, error } = await sb.from("yields").select("*");
+  if (error) throw error;
+  return (data as any[]).map(mapYield);
+}
 
+export async function createYield(input: Omit<YieldRecord, "id">) {
+  const sb = supabaseBrowser();
+  const { data, error } = await sb
+    .from("yields")
+    .insert({
+      lot_id: input.lotId,
+      quantite_kg: input.quantiteKg,
+      annee: new Date(input.dateISO).getFullYear().toString(),
+      rendement_huile_pct: input.rendementHuilePct ?? null,
+      note: input.note ?? null,
+    })
+    .select("*")
+    .single();
+  if (error) throw error;
+  return mapYield(data as any);
+}
+
+export async function deleteYield(id: UUID) {
+  const sb = supabaseBrowser();
+  const { error } = await sb.from("yields").delete().eq("id", id);
+  if (error) throw error;
+}
 
 export async function listScenarios(): Promise<Scenario[]> {
   const sb = supabaseBrowser();

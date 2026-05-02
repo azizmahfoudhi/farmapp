@@ -1,25 +1,34 @@
 "use client";
 
 import * as React from "react";
-import type { Batch, Expense, FarmSettings, FarmTask, Scenario, Treatment, TreeType, UUID } from "@/lib/domain";
+import type { Batch, Expense, FarmSettings, FarmTask, Scenario, Treatment, TreeType, UUID, YieldRecord } from "@/lib/domain";
 import {
   createBatch,
   createExpense,
   createTreeType,
+  createYield,
   deleteBatch,
   deleteExpense,
   deleteTreeType,
+  deleteYield,
   getOrCreateSettings,
   listBatches,
   listExpenses,
   listScenarios,
+  listTasks,
+  listTreatments,
   listTreeTypes,
+  listYields,
   updateSettings,
   updateTreeType as dbUpdateTreeType,
   updateBatch as dbUpdateBatch,
   updateExpense as dbUpdateExpense,
-  listTasks, createTask, updateTask as dbUpdateTask, deleteTask,
-  listTreatments, createTreatment, updateTreatment as dbUpdateTreatment, deleteTreatment,
+  createTask,
+  updateTask as dbUpdateTask,
+  deleteTask,
+  createTreatment,
+  updateTreatment as dbUpdateTreatment,
+  deleteTreatment,
 } from "@/lib/db";
 
 export function useFarmData() {
@@ -33,30 +42,32 @@ export function useFarmData() {
   const [depenses, setDepenses] = React.useState<Expense[]>([]);
   const [tasks, setTasks] = React.useState<FarmTask[]>([]);
   const [treatments, setTreatments] = React.useState<Treatment[]>([]);
+  const [yields, setYields] = React.useState<YieldRecord[]>([]);
   const [scenarios, setScenarios] = React.useState<Scenario[]>([]);
 
   const refresh = React.useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const s = await getOrCreateSettings();
-      setSettingsRowId(s.rowId);
-      setSettings(s.settings);
-
-      const [t, l, d, sc, tk, tr] = await Promise.all([
+      const [s, t, l, d, sc, tk, tr, y] = await Promise.all([
+        getOrCreateSettings(),
         listTreeTypes(),
         listBatches(),
         listExpenses(),
         listScenarios(),
         listTasks(),
         listTreatments(),
+        listYields(),
       ]);
+      setSettingsRowId(s.rowId);
+      setSettings(s.settings);
       setTypes(t);
       setLots(l);
       setDepenses(d);
       setScenarios(sc);
       setTasks(tk);
       setTreatments(tr);
+      setYields(y);
     } catch (e: any) {
       setError(e?.message ?? "Erreur Supabase");
     } finally {
@@ -115,7 +126,6 @@ export function useFarmData() {
         setDepenses((d) => d.filter((x) => x.id !== id));
       },
 
-      // Tasks
       async addTask(input: Omit<FarmTask, "id">) {
         const created = await createTask(input);
         setTasks((prev) => [created, ...prev]);
@@ -129,7 +139,6 @@ export function useFarmData() {
         setTasks((prev) => prev.filter((x) => x.id !== id));
       },
 
-      // Treatments
       async addTreatment(input: Omit<Treatment, "id">) {
         const created = await createTreatment(input);
         setTreatments((prev) => [created, ...prev]);
@@ -143,7 +152,14 @@ export function useFarmData() {
         setTreatments((prev) => prev.filter((x) => x.id !== id));
       },
 
-
+      async addYield(input: Omit<YieldRecord, "id">) {
+        const created = await createYield(input);
+        setYields((prev) => [created, ...prev]);
+      },
+      async removeYield(id: UUID) {
+        await deleteYield(id);
+        setYields((prev) => prev.filter((x) => x.id !== id));
+      },
     }),
     [settingsRowId],
   );
@@ -158,8 +174,8 @@ export function useFarmData() {
     depenses,
     tasks,
     treatments,
+    yields,
     scenarios,
     actions,
   };
 }
-

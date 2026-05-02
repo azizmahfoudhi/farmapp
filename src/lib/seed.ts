@@ -51,6 +51,7 @@ export function demoSeed(): FarmState {
         note: "Taille + traitement",
       },
     ],
+    yields: [],
     tasks: [],
     treatments: [],
     scenarios: [
