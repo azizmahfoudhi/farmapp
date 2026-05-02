@@ -6,7 +6,7 @@ import { AppShell } from "@/components/AppShell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { ageYearsFromISO, batchActualROI, batchEstimatedProductionKg, sumExpensesForBatch, sumRevenuesForBatch } from "@/lib/engine";
+import { ageYearsFromISO, batchEstimatedProductionKg, sumExpensesForBatch } from "@/lib/engine";
 import { todayISO } from "@/lib/derive";
 import { formatDateLong, formatKg, formatMoneyDT, formatNumber } from "@/lib/format";
 import { useFarmData } from "@/lib/useFarmData";
@@ -43,33 +43,28 @@ export default function LotDetailPage() {
     types: farm.types,
     lots: farm.lots,
     depenses: farm.depenses,
-    harvests: farm.harvests,
     tasks: farm.tasks,
     treatments: farm.treatments,
     scenarios: farm.scenarios,
   };
   const cost = sumExpensesForBatch(farmState, lot.id);
-  const rev = sumRevenuesForBatch(farmState, lot.id);
-  const roi = batchActualROI(farmState, lot.id);
-  const isProfitable = roi >= 0;
 
   const prod = type ? batchEstimatedProductionKg({ batch: lot, type, atISO: tISO }) : 0;
   const perTreeCost = lot.nbArbres > 0 ? cost / lot.nbArbres : 0;
   const yieldPerTree = lot.nbArbres > 0 ? prod / lot.nbArbres : 0;
 
-  const lotHarvests = farm.harvests.filter(h => h.lotId === lot.id);
   const lotTreatments = farm.treatments.filter(t => t.lotId === lot.id);
 
   return (
     <AppShell title={lot.nom}>
       <div className="flex flex-col gap-6">
         
-        {/* SECTION: RÉSUMÉ & ROI */}
+        {/* SECTION: RÉSUMÉ */}
         <Card className="border-border/50 bg-card/50 backdrop-blur-xl shadow-sm">
           <CardHeader>
             <div className="flex justify-between items-start gap-4">
               <div>
-                <CardTitle className="text-xl">Résumé & ROI</CardTitle>
+                <CardTitle className="text-xl">Résumé</CardTitle>
                 <CardDescription>
                   {type?.nom ?? "Type inconnu"} · {formatNumber(lot.nbArbres)} arbres ·{" "}
                   {formatNumber(age, 1)} ans · {lot.irrigation === "irrigue" ? "Irrigué" : "Non irrigué"}
@@ -88,46 +83,17 @@ export default function LotDetailPage() {
                   )}
                 </CardDescription>
               </div>
-              <div className={`px-3 py-1.5 rounded-xl border ${isProfitable ? "bg-success/10 border-success/30 text-success" : "bg-danger/10 border-danger/30 text-danger"} text-center`}>
-                <div className="text-[10px] font-bold uppercase tracking-widest opacity-80 mb-0.5">ROI Actuel</div>
-                <div className="font-black text-lg leading-none">{roi > 0 ? "+" : ""}{formatMoneyDT(roi)}</div>
-              </div>
             </div>
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-2">
             <Kpi label="Total Dépenses" value={formatMoneyDT(cost)} className="text-danger" />
-            <Kpi label="Total Revenus" value={formatMoneyDT(rev)} className="text-success" />
+            <Kpi label="Dépense / arbre" value={formatMoneyDT(perTreeCost)} />
             <Kpi label="Production estimée (Année)" value={formatKg(prod)} />
             <Kpi label="Rendement estimé / arbre" value={`${formatNumber(yieldPerTree, 1)} kg`} />
           </CardContent>
         </Card>
 
-        {/* SECTION: RÉCOLTES DU LOT */}
-        <div>
-          <h2 className="text-lg font-bold mb-3 flex items-center gap-2">
-            🌾 Historique des Récoltes
-          </h2>
-          <Card className="border-border/50 bg-card/50 backdrop-blur-xl shadow-sm">
-            <CardContent className="p-3 grid gap-2">
-              {lotHarvests.length > 0 ? (
-                lotHarvests.map(h => (
-                  <div key={h.id} className="flex justify-between items-center bg-background/50 p-2 rounded-lg border border-border/40">
-                    <div>
-                      <div className="font-bold">{formatKg(h.quantiteKg)}</div>
-                      <div className="text-xs text-muted">{formatDateLong(h.dateISO)}</div>
-                    </div>
-                    <div className="text-right">
-                      {h.revenuGenere ? <div className="font-bold text-success">+{formatMoneyDT(h.revenuGenere)}</div> : null}
-                      {h.rendementHuilePct ? <div className="text-xs text-muted">{h.rendementHuilePct}% huile</div> : null}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-sm text-muted text-center py-4">Aucune récolte enregistrée pour ce lot.</div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+
 
         {/* SECTION: CARNET DE SANTÉ (TRAITEMENTS) */}
         <div>

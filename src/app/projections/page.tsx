@@ -18,7 +18,6 @@ export default function ProjectionsPage() {
     types: farm.types,
     lots: farm.lots,
     depenses: farm.depenses,
-    harvests: farm.harvests,
     tasks: farm.tasks,
     treatments: farm.treatments,
     scenarios: farm.scenarios,

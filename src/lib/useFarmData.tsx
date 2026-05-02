@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import type { Batch, Expense, FarmSettings, FarmTask, Harvest, Scenario, Treatment, TreeType, UUID } from "@/lib/domain";
+import type { Batch, Expense, FarmSettings, FarmTask, Scenario, Treatment, TreeType, UUID } from "@/lib/domain";
 import {
   createBatch,
   createExpense,
@@ -18,7 +18,6 @@ import {
   updateTreeType as dbUpdateTreeType,
   updateBatch as dbUpdateBatch,
   updateExpense as dbUpdateExpense,
-  listHarvests, createHarvest, updateHarvest as dbUpdateHarvest, deleteHarvest,
   listTasks, createTask, updateTask as dbUpdateTask, deleteTask,
   listTreatments, createTreatment, updateTreatment as dbUpdateTreatment, deleteTreatment,
 } from "@/lib/db";
@@ -32,7 +31,6 @@ export function useFarmData() {
   const [types, setTypes] = React.useState<TreeType[]>([]);
   const [lots, setLots] = React.useState<Batch[]>([]);
   const [depenses, setDepenses] = React.useState<Expense[]>([]);
-  const [harvests, setHarvests] = React.useState<Harvest[]>([]);
   const [tasks, setTasks] = React.useState<FarmTask[]>([]);
   const [treatments, setTreatments] = React.useState<Treatment[]>([]);
   const [scenarios, setScenarios] = React.useState<Scenario[]>([]);
@@ -45,12 +43,11 @@ export function useFarmData() {
       setSettingsRowId(s.rowId);
       setSettings(s.settings);
 
-      const [t, l, d, sc, h, tk, tr] = await Promise.all([
+      const [t, l, d, sc, tk, tr] = await Promise.all([
         listTreeTypes(),
         listBatches(),
         listExpenses(),
         listScenarios(),
-        listHarvests(),
         listTasks(),
         listTreatments(),
       ]);
@@ -58,7 +55,6 @@ export function useFarmData() {
       setLots(l);
       setDepenses(d);
       setScenarios(sc);
-      setHarvests(h);
       setTasks(tk);
       setTreatments(tr);
     } catch (e: any) {
@@ -119,20 +115,6 @@ export function useFarmData() {
         setDepenses((d) => d.filter((x) => x.id !== id));
       },
 
-      // Harvests
-      async addHarvest(input: Omit<Harvest, "id">) {
-        const created = await createHarvest(input);
-        setHarvests((prev) => [created, ...prev]);
-      },
-      async updateHarvest(id: UUID, input: Partial<Omit<Harvest, "id">>) {
-        await dbUpdateHarvest(id, input);
-        setHarvests((prev) => prev.map((x) => (x.id === id ? { ...x, ...input } : x)));
-      },
-      async removeHarvest(id: UUID) {
-        await deleteHarvest(id);
-        setHarvests((prev) => prev.filter((x) => x.id !== id));
-      },
-
       // Tasks
       async addTask(input: Omit<FarmTask, "id">) {
         const created = await createTask(input);
@@ -174,7 +156,6 @@ export function useFarmData() {
     types,
     lots,
     depenses,
-    harvests,
     tasks,
     treatments,
     scenarios,

@@ -96,24 +96,6 @@ export function sumExpensesForBatch(state: FarmState, lotId: UUID) {
     .reduce((acc, e) => acc + e.montant, 0);
 }
 
-export function sumRevenuesTotal(state: FarmState) {
-  return state.harvests.reduce((acc, h) => acc + (h.revenuGenere || 0), 0);
-}
-
-export function sumRevenuesForBatch(state: FarmState, lotId: UUID) {
-  return state.harvests
-    .filter((h) => h.lotId === lotId)
-    .reduce((acc, h) => acc + (h.revenuGenere || 0), 0);
-}
-
-export function batchActualROI(state: FarmState, lotId: UUID) {
-  const rev = sumRevenuesForBatch(state, lotId);
-  const exp = sumExpensesForBatch(state, lotId);
-  return rev - exp;
-}
-
-
-
 export function buildScenarioState(base: FarmState, scenarioId?: UUID) {
   const scenario = base.scenarios.find((s) => s.id === scenarioId);
   if (!scenario) return base;

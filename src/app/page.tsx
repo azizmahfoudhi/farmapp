@@ -12,7 +12,8 @@ import {
   CardTitle,
 } from "@/components/ui/Card";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { buildInsights, farmTotals, expensesSeriesLast12Months, WeatherData } from "@/lib/derive";
+import { buildInsights, farmTotals, expensesSeriesLast12Months } from "@/lib/derive";
+import { useWeather } from "@/lib/useWeather";
 import { formatKg, formatMoneyDT, formatNumber } from "@/lib/format";
 import { cn } from "@/lib/cn";
 import { useFarmData } from "@/lib/useFarmData";
@@ -20,30 +21,13 @@ import { Sprout, Layers, Wallet, ArrowRight } from "lucide-react";
 
 export default function HomePage() {
   const farm = useFarmData();
-  const [weather, setWeather] = React.useState<WeatherData | null>(null);
-
-  React.useEffect(() => {
-    // Fetch real-time weather for Nasrallah, Tunisia (Approx 35.35 N, 9.81 E)
-    fetch("https://api.open-meteo.com/v1/forecast?latitude=35.35&longitude=9.81&current=temperature_2m,precipitation&timezone=Africa%2FTunis")
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.current) {
-          setWeather({
-            temp: data.current.temperature_2m,
-            precipitation: data.current.precipitation,
-            isRaining: data.current.precipitation > 0,
-          });
-        }
-      })
-      .catch(console.error);
-  }, []);
+  const { data: weather, loading: weatherLoading } = useWeather();
 
   const state = {
     settings: farm.settings,
     types: farm.types,
     lots: farm.lots,
     depenses: farm.depenses,
-    harvests: farm.harvests,
     tasks: farm.tasks,
     treatments: farm.treatments,
     scenarios: farm.scenarios,
@@ -273,16 +257,24 @@ export default function HomePage() {
 
             <Card className="md:col-span-2 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-[700ms] fill-mode-both border-border/50 bg-card/50 backdrop-blur-xl shadow-sm hover:shadow-[0_0_30px_rgba(16,185,129,0.1)] transition-all">
               <CardHeader className="pb-3 border-b border-border/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20">
-                    <span className="text-2xl">🤖</span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20">
+                      <span className="text-2xl">🤖</span>
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">Assistant Senya</CardTitle>
+                      <CardDescription>
+                        {weather ? `Météo en direct : ${weather.current.temp}°C, Vent ${weather.current.windSpeed}km/h` : "Analyse en temps réel..."}
+                      </CardDescription>
+                    </div>
                   </div>
-                  <div>
-                    <CardTitle className="text-lg">Assistant Senya</CardTitle>
-                    <CardDescription>
-                      {weather ? `Météo à Nasrallah: ${weather.temp}°C, ${weather.precipitation}mm` : "Analyse en temps réel de votre ferme..."}
-                    </CardDescription>
-                  </div>
+                  {weather && (
+                    <div className="text-right hidden sm:block">
+                      <div className="text-2xl font-black">{weather.current.temp}°C</div>
+                      <div className="text-xs text-muted">{weather.current.isDay ? "Ensoleillé" : "Nuit Claire"}</div>
+                    </div>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="pt-4 space-y-4">
@@ -324,6 +316,37 @@ export default function HomePage() {
                 )}
               </CardContent>
             </Card>
+            <Card className="md:col-span-2 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-[800ms] fill-mode-both border-border/50 bg-card/50 backdrop-blur-xl shadow-sm hover:shadow-[0_0_30px_rgba(16,185,129,0.1)] transition-all">
+              <CardHeader>
+                <div>
+                  <CardTitle>Météo Agricole (5 Jours)</CardTitle>
+                  <CardDescription>Prévisions pour votre oliveraie</CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {weatherLoading ? (
+                  <div className="flex justify-center py-4"><Skeleton className="h-16 w-full" /></div>
+                ) : weather ? (
+                  <div className="flex overflow-x-auto gap-4 pb-2 no-scrollbar">
+                    {weather.daily.dates.slice(0, 5).map((date, i) => (
+                      <div key={date} className="flex-1 min-w-[80px] bg-background/50 border border-border/40 rounded-2xl p-3 flex flex-col items-center justify-center gap-2">
+                        <div className="text-xs font-semibold text-muted uppercase tracking-wider">
+                          {new Date(date).toLocaleDateString("fr-FR", { weekday: "short" })}
+                        </div>
+                        <div className="text-2xl">
+                          {weather.daily.maxTemps[i] > 30 ? "☀️" : weather.daily.maxTemps[i] < 10 ? "❄️" : "⛅"}
+                        </div>
+                        <div className="text-sm font-bold">{Math.round(weather.daily.maxTemps[i])}°</div>
+                        <div className="text-xs text-muted">{Math.round(weather.daily.minTemps[i])}°</div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-sm text-muted text-center py-4">Météo indisponible</div>
+                )}
+              </CardContent>
+            </Card>
+
           </div>
         </>
       )}

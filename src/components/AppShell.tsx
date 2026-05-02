@@ -12,7 +12,6 @@ import {
   Layers,
   LineChart,
   Calendar,
-  Wheat,
 } from "lucide-react";
 
 const nav = [
@@ -20,7 +19,6 @@ const nav = [
   { href: "/structure", label: "Structure", icon: Sprout },
   { href: "/lots", label: "Lots", icon: Layers },
   { href: "/depenses", label: "Dépenses", icon: Wallet },
-  { href: "/recoltes", label: "Récoltes", icon: Wheat },
   { href: "/calendrier", label: "Calendrier", icon: Calendar },
 ];
 

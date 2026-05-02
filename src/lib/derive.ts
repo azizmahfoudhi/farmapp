@@ -1,5 +1,6 @@
 import { formatISO, startOfMonth, subMonths } from "date-fns";
 import type { FarmState, UUID } from "@/lib/domain";
+import type { WeatherData } from "@/lib/useWeather";
 import {
   ageYearsFromISO,
   batchEstimatedProductionKg,
@@ -74,11 +75,7 @@ export function expensesSeriesLast12Months(state: FarmState) {
   return series;
 }
 
-export type WeatherData = {
-  temp: number;
-  precipitation: number;
-  isRaining: boolean;
-};
+
 
 export type Insight = {
   level: "info" | "warning" | "danger" | "success";
@@ -107,25 +104,40 @@ export function buildInsights(state: FarmState, weather: WeatherData | null = nu
 
   // 2. Weather & Irrigation Advice
   if (weather) {
-    if (weather.isRaining || weather.precipitation > 2) {
+    const isRaining = weather.current.precipitation > 0;
+    if (isRaining || weather.current.precipitation > 2) {
       insights.push({
         level: "success",
-        titre: "Pluie en cours / prévue",
-        detail: `La météo annonce de la pluie (${weather.precipitation}mm). Inutile d'irriguer aujourd'hui, vous pouvez suspendre vos cycles pour économiser l'eau et l'énergie.`,
+        titre: "Pluie en cours",
+        detail: `La météo annonce de la pluie (${weather.current.precipitation}mm). Inutile d'irriguer aujourd'hui, économisez l'eau et l'énergie.`,
         icon: "🌧️"
       });
-    } else if (weather.temp > 32) {
+    } else if (weather.current.temp > 35) {
       insights.push({
         level: "danger",
         titre: "Alerte Canicule",
-        detail: `Il fait très chaud actuellement (${weather.temp}°C). Augmentez la fréquence d'irrigation, de préférence tard le soir ou tôt le matin pour limiter l'évaporation.`,
+        detail: `Il fait très chaud actuellement (${weather.current.temp}°C). Augmentez la fréquence d'irrigation, de préférence tard le soir ou tôt le matin pour limiter l'évaporation.`,
         icon: "🌡️"
       });
-    } else if (weather.temp > 25 && weather.precipitation === 0) {
+    } else if (weather.current.temp < 5) {
+      insights.push({
+        level: "danger",
+        titre: "Alerte Gel",
+        detail: `Risque de gel (${weather.current.temp}°C). Surveillez vos jeunes plants, ils sont les plus vulnérables.`,
+        icon: "❄️"
+      });
+    } else if (weather.current.windSpeed > 30) {
+      insights.push({
+        level: "warning",
+        titre: "Vent fort",
+        detail: `Des vents de ${weather.current.windSpeed} km/h sont signalés. Si vous avez prévu un traitement foliaire, il vaut mieux le reporter.`,
+        icon: "🌬️"
+      });
+    } else if (weather.current.temp > 25 && !isRaining) {
       insights.push({
         level: "warning",
         titre: "Temps sec et chaud",
-        detail: `Il fait ${weather.temp}°C sans précipitation prévue. C'est une fenêtre idéale pour un cycle d'irrigation standard.`,
+        detail: `Il fait ${weather.current.temp}°C sans précipitation prévue. Fenêtre idéale pour un cycle d'irrigation standard.`,
         icon: "☀️"
       });
     }

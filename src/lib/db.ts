@@ -3,7 +3,6 @@ import type {
   Expense,
   FarmSettings,
   FarmTask,
-  Harvest,
   IrrigationStatus,
   Scenario,
   TreeType,
@@ -44,15 +43,6 @@ type DbExpenseRow = {
 };
 
 
-
-type DbHarvestRow = {
-  id: UUID;
-  lot_id: UUID | null;
-  date: string;
-  quantite_kg: number;
-  rendement_huile_pct: number | null;
-  revenu_genere: number | null;
-};
 
 type DbTaskRow = {
   id: UUID;
@@ -111,17 +101,6 @@ function mapScenario(r: DbScenarioRow): Scenario {
   return { id: r.id, nom: r.nom, ...(r.payload as any) };
 }
 
-
-function mapHarvest(r: any): Harvest {
-  return {
-    id: r.id,
-    lotId: r.lot_id ?? undefined,
-    dateISO: r.date,
-    quantiteKg: Number(r.quantite_kg),
-    rendementHuilePct: r.rendement_huile_pct != null ? Number(r.rendement_huile_pct) : undefined,
-    revenuGenere: r.revenu_genere != null ? Number(r.revenu_genere) : undefined,
-  };
-}
 
 function mapTask(r: any): FarmTask {
   return {
@@ -298,45 +277,6 @@ export async function updateExpense(id: UUID, input: Partial<Omit<Expense, "id">
   if (input.lotId !== undefined) payload.lot_id = input.lotId;
   if (input.note !== undefined) payload.note = input.note;
   const { error } = await sb.from("expenses").update(payload).eq("id", id);
-  if (error) throw error;
-}
-
-// HARVESTS
-export async function listHarvests(): Promise<Harvest[]> {
-  const sb = supabaseBrowser();
-  const { data, error } = await sb.from("harvests").select("*").order("date", { ascending: false });
-  if (error) throw error;
-  return (data as any[]).map(mapHarvest);
-}
-
-export async function createHarvest(input: Omit<Harvest, "id">) {
-  const sb = supabaseBrowser();
-  const { data, error } = await sb.from("harvests").insert({
-    lot_id: input.lotId ?? null,
-    date: input.dateISO,
-    quantite_kg: input.quantiteKg,
-    rendement_huile_pct: input.rendementHuilePct ?? null,
-    revenu_genere: input.revenuGenere ?? null,
-  }).select("*").single();
-  if (error) throw error;
-  return mapHarvest(data as any);
-}
-
-export async function updateHarvest(id: UUID, input: Partial<Omit<Harvest, "id">>) {
-  const sb = supabaseBrowser();
-  const payload: any = {};
-  if (input.lotId !== undefined) payload.lot_id = input.lotId;
-  if (input.dateISO !== undefined) payload.date = input.dateISO;
-  if (input.quantiteKg !== undefined) payload.quantite_kg = input.quantiteKg;
-  if (input.rendementHuilePct !== undefined) payload.rendement_huile_pct = input.rendementHuilePct;
-  if (input.revenuGenere !== undefined) payload.revenu_genere = input.revenuGenere;
-  const { error } = await sb.from("harvests").update(payload).eq("id", id);
-  if (error) throw error;
-}
-
-export async function deleteHarvest(id: UUID) {
-  const sb = supabaseBrowser();
-  const { error } = await sb.from("harvests").delete().eq("id", id);
   if (error) throw error;
 }
 
