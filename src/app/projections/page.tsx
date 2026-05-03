@@ -1,12 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { ResponsiveContainer, BarChart, Bar, XAxis, Tooltip, CartesianGrid } from "recharts";
+import { ResponsiveContainer, BarChart, Bar, XAxis, Tooltip, CartesianGrid, LineChart, Line, YAxis, Legend } from "recharts";
 import { AppShell } from "@/components/AppShell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 import { formatKg, formatMoneyDT } from "@/lib/format";
 import { useFarmData } from "@/lib/useFarmData";
-import { computeLotForecast } from "@/lib/intelligence";
+import { computeLotForecast, computeMultiYearForecast } from "@/lib/intelligence";
 import { Sprout, TrendingUp, AlertTriangle, Coins } from "lucide-react";
 
 export default function ProjectionsPage() {
@@ -148,6 +148,73 @@ export default function ProjectionsPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* LONG TERM ANTICIPATION SECTION */}
+        <div className="pt-8 mt-4 border-t border-border/50">
+          <div className="mb-6">
+            <h2 className="text-2xl font-black flex items-center gap-2">
+              <TrendingUp className="w-6 h-6 text-primary" />
+              Anticipation à Long Terme (15 ans)
+            </h2>
+            <p className="text-sm text-muted">Évolution de la production et de la rentabilité au fil du temps.</p>
+          </div>
+          
+          <div className="flex flex-col gap-6">
+            {/* Production Chart */}
+            <Card className="border-border/50 bg-card/40 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle>Évolution de la Production</CardTitle>
+                <CardDescription>Rendement global attendu (Kg)</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64 -ml-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={computeMultiYearForecast(baseState, 15)} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.5} />
+                      <XAxis dataKey="year" tickLine={false} axisLine={false} tick={{ fill: 'var(--muted)', fontSize: 12 }} dy={10} />
+                      <YAxis tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} tickLine={false} axisLine={false} tick={{ fill: 'var(--muted)', fontSize: 12 }} dx={-10} width={45} />
+                      <Tooltip
+                        cursor={{ stroke: 'var(--muted)', strokeWidth: 1, strokeDasharray: '3 3' }}
+                        contentStyle={{ borderRadius: 12, border: "1px solid var(--border)", background: "var(--card)", color: "var(--foreground)" }}
+                        formatter={(v: unknown) => formatKg(Number(v))}
+                        labelStyle={{ fontWeight: 'bold', color: 'var(--foreground)' }}
+                      />
+                      <Line type="monotone" dataKey="yieldKg" name="Production" stroke="var(--primary)" strokeWidth={3} dot={{ r: 3, fill: 'var(--background)', strokeWidth: 2 }} activeDot={{ r: 6 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Financial Chart */}
+            <Card className="border-border/50 bg-card/40 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle>Trajectoire Financière</CardTitle>
+                <CardDescription>Chiffre d'Affaires vs Profit Net</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64 -ml-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={computeMultiYearForecast(baseState, 15)} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" opacity={0.5} />
+                      <XAxis dataKey="year" tickLine={false} axisLine={false} tick={{ fill: 'var(--muted)', fontSize: 12 }} dy={10} />
+                      <YAxis tickFormatter={(v) => `${(v/1000).toFixed(0)}k`} tickLine={false} axisLine={false} tick={{ fill: 'var(--muted)', fontSize: 12 }} dx={-10} width={45} />
+                      <Tooltip
+                        cursor={{ stroke: 'var(--muted)', strokeWidth: 1, strokeDasharray: '3 3' }}
+                        contentStyle={{ borderRadius: 12, border: "1px solid var(--border)", background: "var(--card)", color: "var(--foreground)" }}
+                        formatter={(v: unknown) => formatMoneyDT(Number(v))}
+                        labelStyle={{ fontWeight: 'bold', color: 'var(--foreground)' }}
+                      />
+                      <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+                      <Line type="monotone" dataKey="revenueDt" name="Chiffre d'Affaires" stroke="var(--success)" strokeWidth={3} dot={{ r: 0 }} activeDot={{ r: 6 }} />
+                      <Line type="monotone" dataKey="profitDt" name="Profit Net" stroke="var(--primary)" strokeWidth={3} dot={{ r: 0 }} activeDot={{ r: 6 }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
 
       </div>
     </AppShell>

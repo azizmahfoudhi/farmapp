@@ -219,3 +219,60 @@ export function computeGlobalHealth(state: FarmState): number {
   const sum = scores.reduce((a, b) => a + b, 0);
   return Math.round(sum / scores.length);
 }
+
+export type MultiYearForecast = {
+  year: number;
+  yieldKg: number;
+  costDt: number;
+  revenueDt: number;
+  profitDt: number;
+};
+
+/**
+ * 3. Multi-Year Anticipation Engine
+ */
+export function computeMultiYearForecast(state: FarmState, yearsToProject: number = 10): MultiYearForecast[] {
+  const forecasts: MultiYearForecast[] = [];
+  const currentYear = new Date().getFullYear();
+
+  for (let i = 0; i < yearsToProject; i++) {
+    const targetYear = currentYear + i;
+    const atISO = `${targetYear}-06-01T00:00:00.000Z`; // milieu d'année
+
+    let totalYield = 0;
+    let totalCost = 0;
+
+    for (const lot of state.lots) {
+      const type = state.types.find(t => t.id === lot.typeId);
+      if (!type) continue;
+
+      // 1. Yield for this future year
+      const predictedYield = batchEstimatedProductionKg({ batch: lot, type, atISO });
+      totalYield += predictedYield;
+
+      // 2. Cost (simplified: historical cost per lot or fallback, +2% inflation per year)
+      const lotExpenses = state.depenses.filter(e => e.lotId === lot.id);
+      let baseCost = lot.nbArbres * 5; // fallback
+      if (lotExpenses.length > 0) {
+        const totalExp = lotExpenses.reduce((sum, e) => sum + e.montant, 0);
+        baseCost = totalExp / 1; // Assuming 1 year of data for now
+      }
+      // Add inflation: 2% per year
+      const inflationFactor = Math.pow(1.02, i);
+      totalCost += baseCost * inflationFactor;
+    }
+
+    const revenue = totalYield * (state.settings.prixKgOlives || 1);
+    
+    forecasts.push({
+      year: targetYear,
+      yieldKg: Math.round(totalYield),
+      costDt: Math.round(totalCost),
+      revenueDt: Math.round(revenue),
+      profitDt: Math.round(revenue - totalCost),
+    });
+  }
+
+  return forecasts;
+}
+
