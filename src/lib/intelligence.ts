@@ -18,7 +18,7 @@ export type LotForecast = {
   yieldKg: number;
   costDt: number;
   profitDt: number;
-  confidence: "Low" | "Medium" | "High";
+  confidence: "Faible" | "Moyenne" | "Élevée";
   risks: string[];
 };
 
@@ -111,9 +111,9 @@ export function computeLotHealth(state: FarmState, lotId: UUID): HealthScore {
 
   // Find weakest pillar
   const pillars = {
-    Yield: yieldScore,
-    Water: waterScore,
-    Financial: finScore,
+    Rendement: yieldScore,
+    Eau: waterScore,
+    Finances: finScore,
     Stress: stressScore
   };
   const weakestPillar = Object.entries(pillars).sort((a, b) => a[1] - b[1])[0]![0];
@@ -152,7 +152,7 @@ function fallbackHealth(): HealthScore {
 export function computeLotForecast(state: FarmState, lotId: UUID): LotForecast {
   const lot = state.lots.find((l) => l.id === lotId);
   const type = state.types.find((t) => t.id === lot?.typeId);
-  if (!lot || !type) return { yieldKg: 0, costDt: 0, profitDt: 0, confidence: "Low", risks: [] };
+  if (!lot || !type) return { yieldKg: 0, costDt: 0, profitDt: 0, confidence: "Faible", risks: [] };
 
   const now = new Date();
   let targetYear = now.getFullYear();
@@ -167,11 +167,11 @@ export function computeLotForecast(state: FarmState, lotId: UUID): LotForecast {
   
   // Adjust based on historical Farm Memory Yields
   const lotYields = state.yields.filter(y => y.lotId === lotId);
-  let confidence: "Low" | "Medium" | "High" = "Low";
+  let confidence: "Faible" | "Moyenne" | "Élevée" = "Faible";
   const risks: string[] = [];
 
   if (lotYields.length > 0) {
-    confidence = lotYields.length > 2 ? "High" : "Medium";
+    confidence = lotYields.length > 2 ? "Élevée" : "Moyenne";
     // Check for alternating bearing (alternance)
     // If last year was huge, this year drops
     const lastYield = lotYields.sort((a, b) => b.dateISO.localeCompare(a.dateISO))[0];

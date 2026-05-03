@@ -18,7 +18,7 @@ import { computeGlobalHealth } from "@/lib/intelligence";
 import { formatKg, formatMoneyDT, formatNumber } from "@/lib/format";
 import { cn } from "@/lib/cn";
 import { useFarmData } from "@/lib/useFarmData";
-import { Sprout, Layers, Wallet, ArrowRight, TrendingUp } from "lucide-react";
+import { Sprout, Layers, Wallet, ArrowRight, TrendingUp, Settings } from "lucide-react";
 
 export default function HomePage() {
   const farm = useFarmData();
@@ -63,7 +63,11 @@ export default function HomePage() {
   return (
     <AppShell
       title="Résumé"
-      actions={null}
+      actions={
+        <Link href="/structure" className="p-2 rounded-full hover:bg-muted transition-colors flex items-center justify-center" title="Configuration de la Structure">
+          <Settings className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
+        </Link>
+      }
     >
       {farm.error ? (
         <Card className="mb-4 border-danger/20 bg-danger/5 backdrop-blur-xl animate-in fade-in slide-in-from-top-2">

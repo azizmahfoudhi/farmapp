@@ -16,7 +16,6 @@ import {
 
 const nav = [
   { href: "/", label: "Résumé", icon: BarChart3 },
-  { href: "/structure", label: "Structure", icon: Sprout },
   { href: "/lots", label: "Lots", icon: Layers },
   { href: "/depenses", label: "Dépenses", icon: Wallet },
   { href: "/memory", label: "Mémoire", icon: BrainCircuit },
