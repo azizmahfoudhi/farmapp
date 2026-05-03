@@ -24,10 +24,9 @@ export function useWeather() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Default to a central agricultural location in Tunisia (e.g. near Sfax/Kairouan)
-  // For production, this could be configured in the farm settings
-  const lat = 35.6781;
-  const lon = 10.0963;
+  // Coordonnées exactes de Nasrallah, Kairouan
+  const lat = 35.3524;
+  const lon = 9.8219;
 
   useEffect(() => {
     async function fetchWeather() {
