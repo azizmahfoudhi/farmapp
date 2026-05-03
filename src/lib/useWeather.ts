@@ -31,7 +31,8 @@ export function useWeather() {
   useEffect(() => {
     async function fetchWeather() {
       try {
-        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,is_day,precipitation,wind_speed_10m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,uv_index_max&timezone=auto`);
+        // Ajout explicite du modèle ECMWF (Modèle européen très haute précision)
+        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,is_day,precipitation,wind_speed_10m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,uv_index_max&timezone=auto&models=ecmwf_ifs04`);
         if (!res.ok) throw new Error("Failed to fetch weather data");
         const json = await res.json();
         
