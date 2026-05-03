@@ -12,27 +12,52 @@ export function ageYearsFromISO(datePlantationISO: string, atISO: string) {
   return Math.max(0, months / 12);
 }
 
-// Courbe de rendement en cloche (Gompertz simplifiée ou interpolation douce)
-// 0-2 ans: 0%
-// 3 ans: 5% (premiers fruits)
-// 4 ans: 20%
-// 5 ans: 45%
-// 6 ans: 70%
-// 7 ans: 90%
-// 8+ ans: 100% du max
-function yieldPercentageByAge(ageYears: number) {
-  const pts: Array<[number, number]> = [
-    [0, 0],
-    [2, 0],
-    [3, 0.05],
-    [4, 0.20],
-    [5, 0.45],
-    [6, 0.70],
-    [7, 0.90],
-    [8, 1.00],
-    [25, 1.00],
-    [30, 0.90], // Déclin très lent pour les vieux arbres
-  ];
+function yieldPercentageByAge(ageYears: number, typeNom: string) {
+  let pts: Array<[number, number]>;
+  const nomLC = typeNom.toLowerCase();
+
+  if (nomLC.includes("chemlali") || nomLC.includes("chetoui")) {
+    // Variétés traditionnelles (Chemlali, Chétoui) : entrée en production tardive, pic tardif
+    pts = [
+      [0, 0],
+      [4, 0],       // Rien avant 4 ans
+      [5, 0.05],    // Premiers fruits à 5 ans
+      [6, 0.15],
+      [8, 0.40],
+      [10, 0.75],
+      [12, 1.00],   // Pic à 12 ans
+      [40, 1.00],   // Longue durée de vie
+      [50, 0.90],
+    ];
+  } else if (nomLC.includes("koroneiki") || nomLC.includes("arbequina") || nomLC.includes("arbosana")) {
+    // Variétés intensives (Koroneiki, Arbequina) : entrée très rapide, pic rapide
+    pts = [
+      [0, 0],
+      [2, 0],
+      [3, 0.10],    // Premiers fruits à 3 ans
+      [4, 0.40],
+      [5, 0.70],
+      [6, 0.90],
+      [7, 1.00],    // Pic à 7 ans
+      [20, 1.00],
+      [25, 0.85],   // Déclin plus rapide
+    ];
+  } else {
+    // Standard / Moyen par défaut
+    pts = [
+      [0, 0],
+      [2, 0],
+      [3, 0.05],
+      [4, 0.20],
+      [5, 0.45],
+      [6, 0.70],
+      [7, 0.90],
+      [8, 1.00],
+      [25, 1.00],
+      [30, 0.90],
+    ];
+  }
+
   const a = Math.max(0, ageYears);
   for (let i = 0; i < pts.length - 1; i++) {
     const [x1, y1] = pts[i]!;
@@ -53,7 +78,7 @@ export function estimatedYieldKgPerTree(args: {
   irrigation: IrrigationStatus;
   growthStatus?: number;
 }) {
-  const yieldPct = yieldPercentageByAge(args.ageYears);
+  const yieldPct = yieldPercentageByAge(args.ageYears, args.type.nom);
   const scaled = yieldPct * args.type.rendementMaxKgParArbre;
   
   // L'irrigation a un impact énorme en année sèche, ou un impact standard de +30/40%
