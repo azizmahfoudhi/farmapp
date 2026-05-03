@@ -31,25 +31,40 @@ export function useWeather() {
   useEffect(() => {
     async function fetchWeather() {
       try {
-        const apiKey = "a2b47a2988da4ab3956222827260305";
-        const res = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${lat},${lon}&days=5&aqi=no&alerts=no`);
-        if (!res.ok) throw new Error("Failed to fetch weather data");
-        const json = await res.json();
+        // ATTENTION : Vous devez insérer votre clé "Azure Maps Subscription Key" ici
+        const apiKey = "VOTRE_CLE_AZURE_ICI";
+        
+        if (apiKey === "VOTRE_CLE_AZURE_ICI") {
+          throw new Error("Veuillez renseigner votre clé Azure Maps dans src/lib/useWeather.ts");
+        }
+
+        const [currentRes, dailyRes] = await Promise.all([
+          fetch(`https://atlas.microsoft.com/weather/currentConditions/json?api-version=1.1&query=${lat},${lon}&subscription-key=${apiKey}`),
+          fetch(`https://atlas.microsoft.com/weather/forecast/daily/json?api-version=1.1&query=${lat},${lon}&duration=5&subscription-key=${apiKey}`)
+        ]);
+
+        if (!currentRes.ok || !dailyRes.ok) throw new Error("Erreur lors de la récupération des données météo Azure");
+        
+        const currentJson = await currentRes.json();
+        const dailyJson = await dailyRes.json();
+        
+        const current = currentJson.results[0];
+        const forecasts = dailyJson.forecasts;
         
         setData({
           current: {
-            temp: json.current.temp_c,
-            humidity: json.current.humidity,
-            windSpeed: json.current.wind_kph,
-            precipitation: json.current.precip_mm,
-            isDay: json.current.is_day === 1,
-            weatherCode: json.current.condition.code,
+            temp: current.temperature?.value ?? 0,
+            humidity: current.relativeHumidity ?? 0,
+            windSpeed: current.wind?.speed?.value ?? 0,
+            precipitation: current.precipitationSummary?.pastHour?.value ?? 0,
+            isDay: current.isDayTime ?? true,
+            weatherCode: current.iconCode ?? 0,
           },
           daily: {
-            dates: json.forecast.forecastday.map((d: any) => d.date),
-            maxTemps: json.forecast.forecastday.map((d: any) => d.day.maxtemp_c),
-            minTemps: json.forecast.forecastday.map((d: any) => d.day.mintemp_c),
-            uvIndex: json.forecast.forecastday.map((d: any) => d.day.uv),
+            dates: forecasts.map((d: any) => d.date),
+            maxTemps: forecasts.map((d: any) => d.temperature?.maximum?.value ?? 0),
+            minTemps: forecasts.map((d: any) => d.temperature?.minimum?.value ?? 0),
+            uvIndex: forecasts.map((d: any) => d.airAndPollen?.find((p: any) => p.name === 'UVIndex')?.value ?? 0),
           }
         });
       } catch (err: any) {
