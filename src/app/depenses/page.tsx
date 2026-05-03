@@ -10,7 +10,7 @@ import type { ExpenseCategory } from "@/lib/domain";
 import { EXPENSE_CATEGORY_LABEL } from "@/lib/domain";
 import { formatDateLong, formatMoneyDT } from "@/lib/format";
 import { useFarmData } from "@/lib/useFarmData";
-import { Wallet, RefreshCw, Plus, Trash2, CalendarDays, Edit2, X, Check } from "lucide-react";
+import { Wallet, RefreshCw, Plus, Trash2, CalendarDays, Edit2, X, Check, Printer } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 const categories: ExpenseCategory[] = [
@@ -29,7 +29,15 @@ export default function DepensesPage() {
   const totalPonctuel = farm.depenses.reduce((acc, d) => acc + d.montant, 0);
 
   return (
-    <AppShell title="Dépenses">
+    <AppShell 
+      title="Dépenses"
+      actions={
+        <Button size="sm" variant="outline" className="gap-2 print:hidden" onClick={() => window.print()}>
+          <Printer className="w-4 h-4" />
+          <span className="hidden sm:inline">Exporter PDF</span>
+        </Button>
+      }
+    >
       <div className="grid grid-cols-2 gap-3 mb-6">
         <Card className="border-border/50 bg-card/50 backdrop-blur-xl shadow-sm">
           <CardHeader className="p-4 pb-2">
@@ -83,8 +91,8 @@ function OneOffExpenses() {
   }
 
   return (
-    <div className="grid md:grid-cols-[1fr_2fr] gap-4">
-      <Card className="border-border/50 bg-card/50 backdrop-blur-xl shadow-sm h-fit">
+    <div className="grid md:grid-cols-[1fr_2fr] gap-4 print:block">
+      <Card className="border-border/50 bg-card/50 backdrop-blur-xl shadow-sm h-fit print:hidden">
         <CardHeader>
           <div>
             <CardTitle>Nouvelle dépense</CardTitle>
@@ -218,7 +226,7 @@ function ExpenseRow({ d, farm }: { d: any; farm: ReturnType<typeof useFarmData> 
           {d.note ? <div className="mt-1 text-xs text-muted/80 italic line-clamp-1">{d.note}</div> : null}
         </div>
       </div>
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity print:hidden">
         <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted" onClick={() => setIsEditing(true)}>
           <Edit2 className="w-4 h-4" />
         </Button>

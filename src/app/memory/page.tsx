@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useFarmData } from "@/lib/useFarmData";
 import { formatDateLong, formatMoneyDT, formatKg } from "@/lib/format";
-import { BrainCircuit, Search, Droplets, Wallet, ShieldAlert, CheckCircle2, Sprout, Plus } from "lucide-react";
+import { BrainCircuit, Search, Droplets, Wallet, ShieldAlert, CheckCircle2, Sprout, Plus, Printer } from "lucide-react";
 import { Select } from "@/components/ui/Select";
 
 type MemoryEvent = {
@@ -134,7 +134,15 @@ export default function MemoryPage() {
   }
 
   return (
-    <AppShell title="Mémoire Agricole">
+    <AppShell 
+      title="Mémoire Agricole"
+      actions={
+        <Button size="sm" variant="outline" className="gap-2 print:hidden" onClick={() => window.print()}>
+          <Printer className="w-4 h-4" />
+          <span className="hidden sm:inline">Exporter PDF</span>
+        </Button>
+      }
+    >
       <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
         
         {/* HEADER & SEARCH */}
@@ -148,7 +156,7 @@ export default function MemoryPage() {
               <p className="text-sm text-muted">Historique complet des événements, actions et rendements.</p>
             </div>
             
-            <Button size="sm" className="gap-2 bg-success hover:bg-success/90 text-success-foreground" onClick={() => setIsAddYieldOpen(true)}>
+            <Button size="sm" className="gap-2 bg-success hover:bg-success/90 text-success-foreground print:hidden" onClick={() => setIsAddYieldOpen(true)}>
               <Plus className="w-4 h-4" />
               Saisir Récolte
             </Button>
@@ -186,7 +194,7 @@ export default function MemoryPage() {
             )}
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-3 print:hidden">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
               <Input 
