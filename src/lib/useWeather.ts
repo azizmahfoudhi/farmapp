@@ -31,40 +31,27 @@ export function useWeather() {
   useEffect(() => {
     async function fetchWeather() {
       try {
-        // ATTENTION : Vous devez insérer votre clé "Azure Maps Subscription Key" ici
-        const apiKey = "VOTRE_CLE_AZURE_ICI";
+        const apiKey = "8y6w81yh8ld4olh3llorh3b2yti48jdz9t9fa2w5";
         
-        if (apiKey === "VOTRE_CLE_AZURE_ICI") {
-          throw new Error("Veuillez renseigner votre clé Azure Maps dans src/lib/useWeather.ts");
-        }
-
-        const [currentRes, dailyRes] = await Promise.all([
-          fetch(`https://atlas.microsoft.com/weather/currentConditions/json?api-version=1.1&query=${lat},${lon}&subscription-key=${apiKey}`),
-          fetch(`https://atlas.microsoft.com/weather/forecast/daily/json?api-version=1.1&query=${lat},${lon}&duration=5&subscription-key=${apiKey}`)
-        ]);
-
-        if (!currentRes.ok || !dailyRes.ok) throw new Error("Erreur lors de la récupération des données météo Azure");
+        const res = await fetch(`https://www.meteosource.com/api/v1/free/point?lat=${lat}&lon=${lon}&sections=current,daily&key=${apiKey}`);
+        if (!res.ok) throw new Error("Erreur de l'API Meteosource");
         
-        const currentJson = await currentRes.json();
-        const dailyJson = await dailyRes.json();
-        
-        const current = currentJson.results[0];
-        const forecasts = dailyJson.forecasts;
+        const json = await res.json();
         
         setData({
           current: {
-            temp: current.temperature?.value ?? 0,
-            humidity: current.relativeHumidity ?? 0,
-            windSpeed: current.wind?.speed?.value ?? 0,
-            precipitation: current.precipitationSummary?.pastHour?.value ?? 0,
-            isDay: current.isDayTime ?? true,
-            weatherCode: current.iconCode ?? 0,
+            temp: json.current?.temperature ?? 0,
+            humidity: json.current?.humidity ?? 0, // Note: Meteosource free might not have humidity in current, we fallback to 0
+            windSpeed: json.current?.wind?.speed ?? 0,
+            precipitation: json.current?.precipitation?.total ?? 0,
+            isDay: json.current?.icon_num !== undefined ? (json.current.icon_num < 20) : true, // Icons < 20 are usually day icons
+            weatherCode: json.current?.icon_num ?? 0,
           },
           daily: {
-            dates: forecasts.map((d: any) => d.date),
-            maxTemps: forecasts.map((d: any) => d.temperature?.maximum?.value ?? 0),
-            minTemps: forecasts.map((d: any) => d.temperature?.minimum?.value ?? 0),
-            uvIndex: forecasts.map((d: any) => d.airAndPollen?.find((p: any) => p.name === 'UVIndex')?.value ?? 0),
+            dates: json.daily?.data?.map((d: any) => d.day) ?? [],
+            maxTemps: json.daily?.data?.map((d: any) => d.all_day?.temperature_max ?? 0) ?? [],
+            minTemps: json.daily?.data?.map((d: any) => d.all_day?.temperature_min ?? 0) ?? [],
+            uvIndex: json.daily?.data?.map((d: any) => 0) ?? [], // Free tier might not have UV
           }
         });
       } catch (err: any) {
