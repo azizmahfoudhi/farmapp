@@ -7,6 +7,7 @@ import {
   buildScenarioState,
   sumExpensesTotal,
 } from "@/lib/engine";
+import { computeLotForecast } from "@/lib/intelligence";
 
 export function todayISO() {
   return new Date().toISOString().slice(0, 10);
@@ -21,9 +22,7 @@ export function farmTotals(state: FarmState, scenarioId?: UUID) {
 
   const typeById = new Map(s.types.map((t) => [t.id, t]));
   const estimatedYearlyProductionKg = s.lots.reduce((acc, lot) => {
-    const type = typeById.get(lot.typeId);
-    if (!type) return acc;
-    return acc + batchEstimatedProductionKg({ batch: lot, type, atISO: tISO });
+    return acc + computeLotForecast(s, lot.id).yieldKg;
   }, 0);
 
   const estimatedRevenue = estimatedYearlyProductionKg * (s.settings.prixKgOlives || 0);

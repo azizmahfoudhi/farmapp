@@ -148,10 +148,16 @@ export function computeLotForecast(state: FarmState, lotId: UUID): LotForecast {
   const type = state.types.find((t) => t.id === lot?.typeId);
   if (!lot || !type) return { yieldKg: 0, costDt: 0, profitDt: 0, confidence: "Low", risks: [] };
 
-  const nowISO = new Date().toISOString();
+  const now = new Date();
+  let targetYear = now.getFullYear();
+  // Si on est en Décembre (11), la prochaine récolte est l'année suivante
+  if (now.getMonth() >= 11) {
+    targetYear += 1;
+  }
+  const harvestISO = `${targetYear}-11-01T00:00:00.000Z`;
   
-  // 1. Base Expected Yield (from Gompertz engine)
-  let predictedYield = batchEstimatedProductionKg({ batch: lot, type, atISO: nowISO });
+  // 1. Base Expected Yield (from Gompertz engine) evaluated at harvest time!
+  let predictedYield = batchEstimatedProductionKg({ batch: lot, type, atISO: harvestISO });
   
   // Adjust based on historical Farm Memory Yields
   const lotYields = state.yields.filter(y => y.lotId === lotId);
@@ -237,7 +243,7 @@ export function computeMultiYearForecast(state: FarmState, yearsToProject: numbe
 
   for (let i = 0; i < yearsToProject; i++) {
     const targetYear = currentYear + i;
-    const atISO = `${targetYear}-06-01T00:00:00.000Z`; // milieu d'année
+    const harvestISO = `${targetYear}-11-01T00:00:00.000Z`; // Période de récolte (Novembre)
 
     let totalYield = 0;
     let totalCost = 0;
@@ -247,7 +253,7 @@ export function computeMultiYearForecast(state: FarmState, yearsToProject: numbe
       if (!type) continue;
 
       // 1. Yield for this future year
-      const predictedYield = batchEstimatedProductionKg({ batch: lot, type, atISO });
+      const predictedYield = batchEstimatedProductionKg({ batch: lot, type, atISO: harvestISO });
       totalYield += predictedYield;
 
       // 2. Cost (simplified: historical cost per lot or fallback, +2% inflation per year)
