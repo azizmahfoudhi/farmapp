@@ -74,20 +74,45 @@ function OneOffExpenses() {
   const [dateISO, setDateISO] = React.useState<string>(new Date().toISOString().slice(0, 10));
   const [montant, setMontant] = React.useState<string>("");
   const [categorie, setCategorie] = React.useState<ExpenseCategory>("entretien");
-  const [lotId, setLotId] = React.useState<string>("");
+  const [selectedLotIds, setSelectedLotIds] = React.useState<Set<string>>(new Set());
   const [note, setNote] = React.useState<string>("");
 
   async function submit() {
     if (!montant || Number(montant) <= 0) return;
-    await farm.actions.addExpense({
-      dateISO,
-      montant: Number(montant),
-      categorie,
-      lotId: lotId || undefined,
-      note: note.trim() || undefined,
-    });
+    
+    const totalMontant = Number(montant);
+
+    if (selectedLotIds.size === 0) {
+      // Dépense globale
+      await farm.actions.addExpense({
+        dateISO,
+        montant: totalMontant,
+        categorie,
+        lotId: undefined,
+        note: note.trim() || undefined,
+      });
+    } else {
+      // Répartition proportionnelle selon le nombre d'arbres
+      const selectedLots = farm.lots.filter(l => selectedLotIds.has(l.id));
+      const totalTrees = selectedLots.reduce((sum, l) => sum + l.nbArbres, 0);
+      
+      for (const lot of selectedLots) {
+        const proportion = totalTrees > 0 ? (lot.nbArbres / totalTrees) : (1 / selectedLots.length);
+        const lotMontant = Number((totalMontant * proportion).toFixed(3));
+        
+        await farm.actions.addExpense({
+          dateISO,
+          montant: lotMontant,
+          categorie,
+          lotId: lot.id,
+          note: note.trim() || undefined,
+        });
+      }
+    }
+
     setMontant("");
     setNote("");
+    setSelectedLotIds(new Set());
   }
 
   return (
@@ -122,13 +147,29 @@ function OneOffExpenses() {
             </label>
           </div>
           <label className="grid gap-1.5">
-            <div className="text-sm font-medium text-foreground/80">Lier à un lot (Optionnel)</div>
-            <Select value={lotId} onChange={(e) => setLotId(e.target.value)}>
-              <option value="">-- Aucun lot (Global) --</option>
-              {farm.lots.map((l) => (
-                <option key={l.id} value={l.id}>{l.nom}</option>
-              ))}
-            </Select>
+            <div className="text-sm font-medium text-foreground/80">Lier à un/des lot(s) (Optionnel, répartition proportionnelle)</div>
+            <div className="flex flex-wrap gap-2">
+              {farm.lots.map(l => {
+                const isSelected = selectedLotIds.has(l.id);
+                return (
+                  <button
+                    key={l.id}
+                    type="button"
+                    onClick={() => {
+                      const next = new Set(selectedLotIds);
+                      if (next.has(l.id)) next.delete(l.id);
+                      else next.add(l.id);
+                      setSelectedLotIds(next);
+                    }}
+                    className={`px-3 py-1 text-xs rounded-full border transition-colors ${isSelected ? 'bg-primary text-primary-foreground border-primary' : 'bg-background hover:bg-muted border-border/60 text-muted-foreground'}`}
+                  >
+                    {l.nom}
+                  </button>
+                );
+              })}
+            </div>
+            {selectedLotIds.size === 0 && <div className="text-xs text-muted-foreground">Aucun lot sélectionné = Dépense globale répartie sur toute la ferme</div>}
+            {selectedLotIds.size > 1 && <div className="text-xs text-primary font-medium">Répartition proportionnelle ({selectedLotIds.size} lots)</div>}
           </label>
           <label className="grid gap-1.5">
             <div className="text-sm font-medium text-foreground/80">Note (Optionnel)</div>

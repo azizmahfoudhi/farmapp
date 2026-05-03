@@ -30,7 +30,7 @@ export default function MemoryPage() {
   const [isAddYieldOpen, setIsAddYieldOpen] = React.useState(false);
 
   // Add Yield Form State
-  const [yLotId, setYLotId] = React.useState("");
+  const [selectedLotIds, setSelectedLotIds] = React.useState<Set<string>>(new Set());
   const [yDate, setYDate] = React.useState(new Date().toISOString().slice(0, 10));
   const [yQuantite, setYQuantite] = React.useState("");
 
@@ -122,14 +122,25 @@ export default function MemoryPage() {
 
   async function handleAddYield(e: React.FormEvent) {
     e.preventDefault();
-    if (!yLotId || !yQuantite || !yDate) return;
-    await farm.actions.addYield({
-      lotId: yLotId,
-      dateISO: yDate,
-      quantiteKg: Number(yQuantite),
-    });
+    if (selectedLotIds.size === 0 || !yQuantite || !yDate) return;
+    
+    const totalQuantite = Number(yQuantite);
+    const selectedLots = farm.lots.filter(l => selectedLotIds.has(l.id));
+    const totalTrees = selectedLots.reduce((sum, l) => sum + l.nbArbres, 0);
+    
+    for (const lot of selectedLots) {
+      const proportion = totalTrees > 0 ? (lot.nbArbres / totalTrees) : (1 / selectedLots.length);
+      const lotQuantite = Number((totalQuantite * proportion).toFixed(2));
+      
+      await farm.actions.addYield({
+        lotId: lot.id,
+        dateISO: yDate,
+        quantiteKg: lotQuantite,
+      });
+    }
+
     setIsAddYieldOpen(false);
-    setYLotId("");
+    setSelectedLotIds(new Set());
     setYQuantite("");
   }
 
@@ -168,13 +179,29 @@ export default function MemoryPage() {
                   <h2 className="text-xl font-bold mb-4">Enregistrer une récolte</h2>
                   <form onSubmit={handleAddYield} className="space-y-4">
                     <div className="space-y-1.5">
-                      <label className="text-sm font-medium">Lot</label>
-                      <Select value={yLotId} onChange={e => setYLotId(e.target.value)} required>
-                        <option value="">Sélectionnez un lot</option>
-                        {farm.lots.map(l => (
-                          <option key={l.id} value={l.id}>{l.nom}</option>
-                        ))}
-                      </Select>
+                      <label className="text-sm font-medium">Lier à un/des lot(s) (Répartition proportionnelle)</label>
+                      <div className="flex flex-wrap gap-2">
+                        {farm.lots.map(l => {
+                          const isSelected = selectedLotIds.has(l.id);
+                          return (
+                            <button
+                              key={l.id}
+                              type="button"
+                              onClick={() => {
+                                const next = new Set(selectedLotIds);
+                                if (next.has(l.id)) next.delete(l.id);
+                                else next.add(l.id);
+                                setSelectedLotIds(next);
+                              }}
+                              className={`px-3 py-1 text-xs rounded-full border transition-colors ${isSelected ? 'bg-primary text-primary-foreground border-primary' : 'bg-background hover:bg-muted border-border/60 text-muted-foreground'}`}
+                            >
+                              {l.nom}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {selectedLotIds.size === 0 && <div className="text-xs text-danger mt-1">Veuillez sélectionner au moins un lot</div>}
+                      {selectedLotIds.size > 1 && <div className="text-xs text-primary font-medium mt-1">Répartition automatique entre {selectedLotIds.size} lots</div>}
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-sm font-medium">Date / Année</label>
