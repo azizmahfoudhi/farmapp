@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Senya Intelligence Platform - Application Overview</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        h2 {
+            color: #2980b9;
+            margin-top: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        h3 {
+            color: #34495e;
+        }
+        ul {
+            margin-bottom: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        strong {
+            color: #2c3e50;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+        @media print {
+            body {
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Senya Intelligence Platform - Application Overview</h1>
+    
+    <h2>1. Executive Summary</h2>
+    <p>Senya is an intelligent, predictive farm management platform designed specifically for olive orchards. Evolving from a simple data-tracking system, Senya acts as a forward-looking decision-support assistant. It not only manages day-to-day operations like expenses and lot tracking but also calculates dynamic health scores and projects future yields, revenues, and risks, empowering farmers to make data-driven decisions.</p>
+    
+    <h2>2. Core Architecture & Technologies</h2>
+    <ul>
+        <li><strong>Frontend Framework:</strong> Next.js (App Router, v16+) with React 19.</li>
+        <li><strong>Styling & UI:</strong> TailwindCSS v4 with a modern, glassmorphic design system featuring rich animations and gradient overlays.</li>
+        <li><strong>State Management:</strong> Zustand for lightweight, global state handling.</li>
+        <li><strong>Database & Backend:</strong> Supabase (PostgreSQL) for secure, real-time data storage and relational management.</li>
+        <li><strong>Data Visualization:</strong> Recharts for responsive, interactive financial and yield area charts.</li>
+        <li><strong>Icons & Typography:</strong> Lucide React for consistent iconography and Next Font (Geist) for optimized typography.</li>
+    </ul>
+
+    <h2>3. Key Modules & Features</h2>
+    
+    <h3>3.1. Farm Configuration & Tracking</h3>
+    <ul>
+        <li><strong>Global Settings:</strong> Farmers configure their total surface area (ha) and the base selling price per kg of olives.</li>
+        <li><strong>Lot Management:</strong> The farm is divided into 'Lots' (batches of trees). Each lot tracks tree type, planting date, number of trees, irrigation status, and growth state (1-5 stars).</li>
+        <li><strong>Expense Logging:</strong> Financial tracking categorizes expenses into planting, labor, transport, irrigation, equipment, and maintenance.</li>
+    </ul>
+
+    <h3>3.2. Intelligence & Health Scoring Engine</h3>
+    <p>The core differentiator of Senya is its custom Intelligence Engine (<code>intelligence.ts</code>), which evaluates the farm's performance and outputs a <strong>Health Score (0-100)</strong>. The score is broken down into four key pillars:</p>
+    <ul>
+        <li><strong>Yield Performance (30%):</strong> Compares the estimated yield against the theoretical maximum based on tree age and type.</li>
+        <li><strong>Water Efficiency (25%):</strong> Evaluates the irrigation status against the trees' growth state.</li>
+        <li><strong>Financial Efficiency (25%):</strong> Analyzes the margin by comparing current costs against expected revenue.</li>
+        <li><strong>Environmental Stress (20%):</strong> Penalizes the score for recent disease treatments and poor growth indicators.</li>
+    </ul>
+
+    <h3>3.3. Predictive Forecasting Module</h3>
+    <p>A robust forecasting engine uses advanced logic (including Gompertz curves for growth estimation) to project the future state of the farm:</p>
+    <ul>
+        <li><strong>Lot Forecasts:</strong> Predicts expected yield (kg), expected costs (DT), and net profit for individual lots.</li>
+        <li><strong>Risk Assessment:</strong> Flags potential risks such as negative profitability, extreme sensitivity to water stress, and "alternating bearing" (biennial bearing typical of olive trees).</li>
+        <li><strong>Multi-Year Anticipation:</strong> Projects the farm's financial trajectory up to 10 years into the future, incorporating inflation and yield maturation.</li>
+    </ul>
+
+    <h3>3.4. Assistant & Weather Integration</h3>
+    <ul>
+        <li><strong>Real-Time Dashboard:</strong> The homepage provides an AI-like assistant widget that offers actionable insights based on cross-referencing farm data with live weather conditions (e.g., wind speed, temperature, 5-day forecasts).</li>
+        <li><strong>Smart Recommendations:</strong> Automatically generates warnings or success metrics depending on the farm's health breakdown.</li>
+    </ul>
+
+    <h2>4. Data Models & Domain</h2>
+    <p>The application relies on highly structured domain types (<code>domain.ts</code>):</p>
+    <ul>
+        <li><code>TreeType</code>: Defines maximum yield capacities.</li>
+        <li><code>Batch</code> (Lot): Contains planting dates and irrigation status.</li>
+        <li><code>Expense</code> & <code>YieldRecord</code>: Historic and current financial data.</li>
+        <li><code>FarmTask</code> & <code>Treatment</code>: Operational activities and disease management.</li>
+        <li><code>Scenario</code>: Allows farmers to simulate adding lots or changing irrigation systems to foresee financial impact.</li>
+    </ul>
+
+    <h2>5. User Interface & Experience</h2>
+    <ul>
+        <li>The platform features a highly polished UI tailored for both desktop and mobile views.</li>
+        <li><strong>Visual Excellence:</strong> Utilizes modern web aesthetics including vibrant status colors (success, warning, danger), backdrop blurs, and dynamic micro-animations.</li>
+        <li><strong>Localization:</strong> The interface is fully localized in French, matching the target demographic.</li>
+    </ul>
+
+    <h2>6. Business Value</h2>
+    <p>Senya transitions the agricultural workflow from reactive record-keeping to proactive management. By integrating financial tracking with biological forecasting, it enables olive growers to minimize environmental stress, optimize irrigation budgets, and accurately forecast their multi-year ROI.</p>
+    
+    <div class="footer">
+        Generated for Senya Intelligence Platform Analysis
+    </div>
+</body>
+</html>
