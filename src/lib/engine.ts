@@ -19,13 +19,14 @@ function yieldPercentageByAge(ageYears: number, type: TreeType) {
     // Variétés traditionnelles (Chemlali, Chétoui) : entrée en production tardive, pic tardif
     pts = [
       [0, 0],
-      [4, 0],       // Rien avant 4 ans
-      [5, 0.05],    // Premiers fruits à 5 ans
-      [6, 0.15],
-      [8, 0.40],
-      [10, 0.75],
+      [3, 0],       // Rien avant 3 ans
+      [4, 0.08],    // 8% à 4 ans
+      [5, 0.15],    // 15% à 5 ans
+      [6, 0.25],
+      [8, 0.50],
+      [10, 0.85],
       [12, 1.00],   // Pic à 12 ans
-      [40, 1.00],   // Longue durée de vie
+      [40, 1.00],
       [50, 0.90],
     ];
   } else {
@@ -33,13 +34,13 @@ function yieldPercentageByAge(ageYears: number, type: TreeType) {
     pts = [
       [0, 0],
       [2, 0],
-      [3, 0.10],    // Premiers fruits à 3 ans
-      [4, 0.40],
-      [5, 0.70],
-      [6, 0.90],
+      [3, 0.20],    // 20% à 3 ans
+      [4, 0.50],    // 50% à 4 ans
+      [5, 0.80],
+      [6, 0.95],
       [7, 1.00],    // Pic à 7 ans
       [20, 1.00],
-      [25, 0.85],   // Déclin plus rapide
+      [25, 0.85],
     ];
   }
 
