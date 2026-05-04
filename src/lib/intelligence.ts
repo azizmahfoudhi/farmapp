@@ -32,7 +32,7 @@ const clamp = (val: number) => Math.max(0, Math.min(100, Math.round(val)));
  */
 export function computeLotHealth(state: FarmState, lotId: UUID): HealthScore {
   const lot = state.lots.find((l) => l.id === lotId);
-  const type = state.types.find((t) => t.id === lot?.typeId);
+  const type = state.types.find((t) => t.id === lot?.typeId) || state.types[0];
   if (!lot || !type) return fallbackHealth();
 
   const nowISO = new Date().toISOString();
@@ -159,7 +159,7 @@ function fallbackHealth(): HealthScore {
  */
 export function computeLotForecast(state: FarmState, lotId: UUID): LotForecast {
   const lot = state.lots.find((l) => l.id === lotId);
-  const type = state.types.find((t) => t.id === lot?.typeId);
+  const type = state.types.find((t) => t.id === lot?.typeId) || state.types[0];
   if (!lot || !type) return { yieldKg: 0, costDt: 0, profitDt: 0, confidence: "Faible", risks: [] };
 
   const now = new Date();

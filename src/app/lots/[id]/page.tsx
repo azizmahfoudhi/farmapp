@@ -228,7 +228,7 @@ export default function LotDetailPage() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="font-bold text-lg">Score de Santé</h3>
-                  <p className="text-sm text-muted">Basé sur 5 piliers analytiques</p>
+                  <p className="text-sm text-muted">Basé sur 4 piliers analytiques</p>
                 </div>
                 <div className={`text-3xl font-black ${health.colorClass}`}>
                   {health.total}<span className="text-lg opacity-50">/100</span>
