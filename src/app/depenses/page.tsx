@@ -117,6 +117,7 @@ function OneOffExpenses() {
   const [categorie, setCategorie] = React.useState<ExpenseCategory>("entretien");
   const [selectedLotIds, setSelectedLotIds] = React.useState<Set<string>>(new Set());
   const [note, setNote] = React.useState<string>("");
+  const [filterCategories, setFilterCategories] = React.useState<Set<ExpenseCategory>>(new Set());
 
   async function submit() {
     if (!montant || Number(montant) <= 0) return;
@@ -155,6 +156,10 @@ function OneOffExpenses() {
     setNote("");
     setSelectedLotIds(new Set());
   }
+
+  const filteredExpenses = farm.depenses.filter(d => 
+    filterCategories.size === 0 || filterCategories.has(d.categorie as ExpenseCategory)
+  );
 
   return (
     <div className="grid md:grid-cols-[1fr_1.5fr] gap-6 print:block">
@@ -236,21 +241,58 @@ function OneOffExpenses() {
         </CardContent>
       </Card>
 
-      <Card className="glass-card rounded-[2.5rem] border-border/40 shadow-xl overflow-hidden">
         <CardHeader className="border-b border-border/40 bg-muted/5">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-lg font-black tracking-tight">Historique des Opérations</CardTitle>
-              <CardDescription className="text-[10px] font-bold uppercase tracking-wider">{farm.depenses.length} mouvement(s) enregistré(s)</CardDescription>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-lg font-black tracking-tight">Historique des Opérations</CardTitle>
+                <CardDescription className="text-[10px] font-bold uppercase tracking-wider">{filteredExpenses.length} mouvement(s) affiché(s)</CardDescription>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-muted/10 flex items-center justify-center text-muted border border-border/20">
+                <TrendingUp className="w-5 h-5" />
+              </div>
             </div>
-            <div className="w-10 h-10 rounded-xl bg-muted/10 flex items-center justify-center text-muted border border-border/20">
-              <TrendingUp className="w-5 h-5" />
+            
+            {/* MULTI-FILTER */}
+            <div className="flex flex-wrap gap-2">
+              {categories.map(cat => {
+                const isSelected = filterCategories.has(cat);
+                const Icon = CATEGORY_ICONS[cat];
+                return (
+                  <button
+                    key={cat}
+                    onClick={() => {
+                      const next = new Set(filterCategories);
+                      if (next.has(cat)) next.delete(cat);
+                      else next.add(cat);
+                      setFilterCategories(next);
+                    }}
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-[10px] font-bold uppercase tracking-wider transition-all",
+                      isSelected 
+                        ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20 scale-105" 
+                        : "bg-background text-muted-foreground border-border/40 hover:border-primary/40"
+                    )}
+                  >
+                    <Icon className="w-3 h-3" />
+                    {EXPENSE_CATEGORY_LABEL[cat]}
+                  </button>
+                );
+              })}
+              {filterCategories.size > 0 && (
+                <button 
+                  onClick={() => setFilterCategories(new Set())}
+                  className="px-2 py-1.5 rounded-xl text-[10px] font-bold text-danger hover:bg-danger/10 transition-colors uppercase"
+                >
+                  Effacer
+                </button>
+              )}
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-0">
           <div className="divide-y divide-border/40">
-            {farm.depenses.map((d) => (
+            {filteredExpenses.map((d) => (
               <ExpenseRow key={d.id} d={d} farm={farm} />
             ))}
           </div>
