@@ -12,6 +12,24 @@ export function ageYearsFromISO(datePlantationISO: string, atISO: string) {
   return Math.max(0, months / 12);
 }
 
+/**
+ * Calculates a relative weight for a lot based on its biological maturity.
+ * Used for distributing global expenses (like irrigation).
+ */
+function getLotAllocationWeight(lot: Batch, category: string): number {
+  const now = new Date();
+  const plantDate = parseISO(lot.datePlantationISO);
+  const age = Math.max(0, now.getFullYear() - plantDate.getFullYear());
+
+  let factor = 1.0;
+  if (category === "irrigation") {
+    if (age < 4) factor = 0.3;      // Jeunes consomment 30%
+    else if (age < 8) factor = 0.6;  // Croissance 60%
+    else factor = 1.0;              // Adultes 100%
+  }
+  return lot.nbArbres * factor;
+}
+
 function yieldPercentageByAge(ageYears: number, type: TreeType) {
   let pts: Array<[number, number]>;
   const name = (type.nom || "").toLowerCase();
@@ -147,7 +165,7 @@ export function sumExpensesForBatch(state: FarmState, lotId: UUID) {
       const expenseDate = new Date(e.dateISO).getTime();
       
       if (isDurable) {
-        // Durable items share across ALL current trees
+        // Durable items share across ALL current trees (simple count for equipment/plantation)
         if (currentTotalTrees <= 0) return acc;
         const ratio = lot.nbArbres / currentTotalTrees;
         return acc + (e.montant * ratio);
@@ -155,12 +173,13 @@ export function sumExpensesForBatch(state: FarmState, lotId: UUID) {
         // Punctual items share only across trees EXISTING at that time
         if (expenseDate < lotDate) return acc; // Lot didn't exist yet
         
-        const treesAtTime = state.lots
-          .filter(l => new Date(l.datePlantationISO).getTime() <= expenseDate)
-          .reduce((sum, l) => sum + l.nbArbres, 0);
+        const existingLotsAtTime = state.lots.filter(l => new Date(l.datePlantationISO).getTime() <= expenseDate);
+        
+        const totalWeightAtTime = existingLotsAtTime.reduce((sum, l) => sum + getLotAllocationWeight(l, e.categorie), 0);
+        const myWeight = getLotAllocationWeight(lot, e.categorie);
           
-        if (treesAtTime <= 0) return acc;
-        const ratio = lot.nbArbres / treesAtTime;
+        if (totalWeightAtTime <= 0) return acc;
+        const ratio = myWeight / totalWeightAtTime;
         return acc + (e.montant * ratio);
       }
     }, 0);
