@@ -382,7 +382,10 @@ export default function HomePage() {
               <CardHeader>
                 <div>
                   <CardTitle>Météo Agricole (5 Jours)</CardTitle>
-                  <CardDescription>Prévisions pour votre oliveraie</CardDescription>
+                  <CardDescription className="flex items-center justify-between">
+                    <span>Prévisions pour votre oliveraie</span>
+                    {lastFetched && <span className="text-[10px] opacity-60">Màj: {lastFetched}</span>}
+                  </CardDescription>
                 </div>
               </CardHeader>
               <CardContent>
