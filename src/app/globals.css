@@ -10,6 +10,7 @@
   --primary-foreground: #ffffff;
   --danger: #ef4444;
   --warning: #f59e0b;
+  --success: #10b981;
 }
 
 @theme inline {
@@ -22,6 +23,7 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-danger: var(--danger);
   --color-warning: var(--warning);
+  --color-success: var(--success);
   --font-sans: var(--font-outfit);
 }
 
@@ -36,6 +38,7 @@
     --primary-foreground: #020617;
     --danger: #f87171;
     --warning: #fbbf24;
+    --success: #34d399;
   }
 }
 

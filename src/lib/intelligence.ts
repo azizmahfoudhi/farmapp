@@ -25,7 +25,10 @@ export type LotForecast = {
 /**
  * Helper to clamp values between 0 and 100
  */
-const clamp = (val: number) => Math.max(0, Math.min(100, Math.round(val)));
+const clamp = (val: number) => {
+  if (isNaN(val)) return 0;
+  return Math.max(0, Math.min(100, Math.round(val)));
+};
 
 /**
  * 1. Farm Health Score (Unified Intelligence Index)
@@ -129,7 +132,7 @@ export function computeLotHealth(state: FarmState, lotId: UUID, rainMm?: number)
   let label = "Excellent";
   let colorClass = "text-success";
   if (total < 40) { label = "Critique"; colorClass = "text-danger"; }
-  else if (total < 60) { label = "Moyen"; colorClass = "text-warning-foreground"; }
+  else if (total < 60) { label = "Moyen"; colorClass = "text-warning"; }
   else if (total < 80) { label = "Stable"; colorClass = "text-primary"; }
 
   return {
