@@ -32,7 +32,25 @@ export function useWeather() {
 
   useEffect(() => {
     async function fetchWeather() {
+      const CACHE_KEY = "senya_weather_cache";
+      const COOLDOWN = 5 * 60 * 1000; // 5 minutes
+      
       try {
+        // 1. Check local cache first
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+          const { data: cachedData, timestamp } = JSON.parse(cached);
+          const age = Date.now() - timestamp;
+          
+          if (age < COOLDOWN) {
+            setData(cachedData);
+            setLastFetched(new Date(timestamp).toLocaleTimeString("fr-FR", { hour: '2-digit', minute: '2-digit' }));
+            setLoading(false);
+            return; // Skip fetch
+          }
+        }
+
+        // 2. Fetch if no cache or expired
         const apiKey = process.env.NEXT_PUBLIC_METEOSOURCE_API_KEY;
         if (!apiKey) throw new Error("API Key manquante");
         
@@ -42,38 +60,35 @@ export function useWeather() {
         if (!res.ok) throw new Error("Erreur de l'API Meteosource");
         
         const json = await res.json();
-        
-        setData({
+        const weatherObj: WeatherData = {
           current: {
             temp: json.current?.temperature ?? 0,
-            humidity: json.current?.humidity ?? 0, // Note: Meteosource free might not have humidity in current, we fallback to 0
+            humidity: json.current?.humidity ?? 0,
             windSpeed: json.current?.wind?.speed ?? 0,
             precipitation: json.current?.precipitation?.total ?? 0,
-            isDay: json.current?.icon_num !== undefined ? (json.current.icon_num < 20) : true, // Icons < 20 are usually day icons
+            isDay: json.current?.icon_num !== undefined ? (json.current.icon_num < 20) : true,
             weatherCode: json.current?.icon_num ?? 0,
           },
           daily: {
             dates: json.daily?.data?.map((d: any) => d.day) ?? [],
             maxTemps: json.daily?.data?.map((d: any) => d.all_day?.temperature_max ?? 0) ?? [],
             minTemps: json.daily?.data?.map((d: any) => d.all_day?.temperature_min ?? 0) ?? [],
-            uvIndex: json.daily?.data?.map((d: any) => 0) ?? [], // Free tier might not have UV
+            uvIndex: json.daily?.data?.map((d: any) => 0) ?? [],
             precipitation: json.daily?.data?.map((d: any) => d.all_day?.precipitation?.total ?? 0) ?? [],
           }
-        });
-        setLastFetched(new Date().toLocaleTimeString("fr-FR", { hour: '2-digit', minute: '2-digit' }));
+        };
+
+        const now = Date.now();
+        setData(weatherObj);
+        setLastFetched(new Date(now).toLocaleTimeString("fr-FR", { hour: '2-digit', minute: '2-digit' }));
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ data: weatherObj, timestamp: now }));
+        
       } catch (err: any) {
-        console.warn("Meteosource API failed, using fallback data:", err.message);
-        // Fallback mock data
+        console.warn("Meteosource API failed, using fallback:", err.message);
+        // Fallback mock data (no cache storage for mock)
         const tISO = new Date().toISOString().slice(0, 10);
-        setData({
-          current: {
-            temp: 24,
-            humidity: 45,
-            windSpeed: 12,
-            precipitation: 0,
-            isDay: true,
-            weatherCode: 2,
-          },
+        const fallback: WeatherData = {
+          current: { temp: 24, humidity: 45, windSpeed: 12, precipitation: 0, isDay: true, weatherCode: 2 },
           daily: {
             dates: [tISO, "2026-05-05", "2026-05-06", "2026-05-07", "2026-05-08"],
             maxTemps: [26, 28, 27, 24, 25],
@@ -81,9 +96,10 @@ export function useWeather() {
             uvIndex: [6, 7, 6, 5, 6],
             precipitation: [0, 0, 0, 0, 0],
           }
-        });
+        };
+        setData(fallback);
         setLastFetched(new Date().toLocaleTimeString("fr-FR", { hour: '2-digit', minute: '2-digit' }));
-        setError(null); // Clear error since we have fallback
+        setError(null);
       } finally {
         setLoading(false);
       }
