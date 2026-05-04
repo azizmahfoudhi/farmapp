@@ -229,7 +229,7 @@ export default function LotDetailPage() {
             <div className="p-4 pl-6">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="font-bold text-lg">Score de Santé</h3>
+                  <h3 className="font-bold text-lg">Évaluation</h3>
                   <p className="text-sm text-muted">Basé sur 4 piliers analytiques</p>
                 </div>
                 <div className={`text-3xl font-black ${health.colorClass}`}>
@@ -241,7 +241,7 @@ export default function LotDetailPage() {
                   { label: "Rendement", val: health.breakdown.yield, color: health.breakdown.yield < 50 ? 'from-danger/80 to-danger' : health.breakdown.yield < 80 ? 'from-warning/80 to-warning' : 'from-success/80 to-success' },
                   { label: "Eau", val: health.breakdown.water, color: health.breakdown.water < 50 ? 'from-danger/80 to-danger' : health.breakdown.water < 80 ? 'from-warning/80 to-warning' : 'from-success/80 to-success' },
                   { label: "Finances", val: health.breakdown.financial, color: health.breakdown.financial < 50 ? 'from-danger/80 to-danger' : health.breakdown.financial < 80 ? 'from-warning/80 to-warning' : 'from-success/80 to-success' },
-                  { label: "Stress", val: health.breakdown.stress, color: health.breakdown.stress < 50 ? 'from-danger/80 to-danger' : health.breakdown.stress < 80 ? 'from-warning/80 to-warning' : 'from-success/80 to-success' },
+                  { label: "Santé", val: health.breakdown.stress, color: health.breakdown.stress < 50 ? 'from-danger/80 to-danger' : health.breakdown.stress < 80 ? 'from-warning/80 to-warning' : 'from-success/80 to-success' },
                 ].map((p, idx) => (
                   <div key={idx} className="space-y-2">
                     <div className="flex justify-between items-center px-0.5">

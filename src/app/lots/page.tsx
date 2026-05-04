@@ -217,12 +217,12 @@ function LotCard({ lot, farm, typeById, tISO, rainMm }: { lot: any; farm: Return
             </div>
           </label>
           <div className="grid gap-1.5">
-            <div className="text-[11px] font-bold text-foreground/70 uppercase tracking-wider px-0.5">Niveau de Stress Environnemental (Sécheresse, etc.)</div>
+            <div className="text-[11px] font-bold text-foreground/70 uppercase tracking-wider px-0.5">État de Santé (Vigueur, Sécheresse)</div>
             <div className="flex gap-1.5">
               {[
-                { id: "bas", label: "Bas", desc: "Sain" },
-                { id: "moyen", label: "Moyen", desc: "Stressé" },
-                { id: "eleve", label: "Élevé", desc: "Critique" },
+                { id: "bas", label: "Excellente", desc: "Sain" },
+                { id: "moyen", label: "Moyenne", desc: "Passable" },
+                { id: "eleve", label: "Faible", desc: "Critique" },
               ].map((s) => (
                 <button
                   key={s.id}
@@ -291,14 +291,20 @@ function LotCard({ lot, farm, typeById, tISO, rainMm }: { lot: any; farm: Return
         </div>
       </CardHeader>
       <CardContent className="grid gap-4 flex-1 flex flex-col">
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           <div className="rounded-xl border border-border/40 bg-background/50 p-3">
-            <div className="text-xs text-muted font-medium mb-1">Total Arbres</div>
-            <div className="text-lg font-bold">{formatNumber(lot.nbArbres)}</div>
+            <div className="text-[10px] uppercase tracking-wider text-muted font-medium mb-1">Arbres</div>
+            <div className="text-base font-bold">{formatNumber(lot.nbArbres)}</div>
           </div>
           <div className="rounded-xl border border-border/40 bg-background/50 p-3">
-            <div className="text-xs text-muted font-medium mb-1">Rendement estimé</div>
-            <div className="text-lg font-bold text-primary">{formatProduction(prod, age)}</div>
+            <div className="text-[10px] uppercase tracking-wider text-muted font-medium mb-1">Rendement</div>
+            <div className="text-base font-bold text-primary truncate">{formatProduction(prod, age)}</div>
+          </div>
+          <div className="rounded-xl border border-border/40 bg-background/50 p-3">
+            <div className="text-[10px] uppercase tracking-wider text-muted font-medium mb-1">Évaluation</div>
+            <div className={`text-base font-black ${health.colorClass}`}>
+              {health.total}<span className="text-[10px] opacity-50">/100</span>
+            </div>
           </div>
         </div>
 
@@ -307,7 +313,7 @@ function LotCard({ lot, farm, typeById, tISO, rainMm }: { lot: any; farm: Return
             { label: "Rendement", val: health.breakdown.yield, color: health.breakdown.yield < 50 ? 'from-danger/80 to-danger' : health.breakdown.yield < 80 ? 'from-warning/80 to-warning' : 'from-success/80 to-success' },
             { label: "Eau", val: health.breakdown.water, color: health.breakdown.water < 50 ? 'from-danger/80 to-danger' : health.breakdown.water < 80 ? 'from-warning/80 to-warning' : 'from-success/80 to-success' },
             { label: "Finances", val: health.breakdown.financial, color: health.breakdown.financial < 50 ? 'from-danger/80 to-danger' : health.breakdown.financial < 80 ? 'from-warning/80 to-warning' : 'from-success/80 to-success' },
-            { label: "Stress", val: health.breakdown.stress, color: health.breakdown.stress < 50 ? 'from-danger/80 to-danger' : health.breakdown.stress < 80 ? 'from-warning/80 to-warning' : 'from-success/80 to-success' },
+            { label: "Santé", val: health.breakdown.stress, color: health.breakdown.stress < 50 ? 'from-danger/80 to-danger' : health.breakdown.stress < 80 ? 'from-warning/80 to-warning' : 'from-success/80 to-success' },
           ].map((p, idx) => (
             <div key={idx} className="space-y-1.5">
               <div className="flex justify-between items-center px-0.5">

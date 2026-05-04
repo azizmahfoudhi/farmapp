@@ -128,7 +128,7 @@ export function computeLotHealth(state: FarmState, lotId: UUID, rainMm?: number)
     Rendement: yieldScore,
     Eau: waterScore,
     Finances: finScore,
-    Stress: stressScore
+    Santé: stressScore
   };
   const weakestPillar = Object.entries(pillars).sort((a, b) => a[1] - b[1])[0]![0];
 
