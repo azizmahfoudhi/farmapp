@@ -218,7 +218,7 @@ function CreateBatchCard({ farm }: { farm: ReturnType<typeof useFarmData> }) {
   const [typeId, setTypeId] = React.useState<string>("");
   const [datePlantation, setDatePlantation] = React.useState<string>(new Date().toISOString().slice(0, 10));
   const [nb, setNb] = React.useState<string>("100");
-  const [irrig, setIrrig] = React.useState<"irrigue" | "non_irrigue">("non_irrigue");
+  const [irrig, setIrrig] = React.useState<import("@/lib/domain").IrrigationStatus>("non_irrigue");
   const [croissance, setCroissance] = React.useState<number>(3);
 
   async function submit() {

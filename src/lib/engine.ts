@@ -84,7 +84,7 @@ export function estimatedYieldKgPerTree(args: {
   // L'irrigation a un impact énorme en année sèche, ou un impact standard de +30/40%
   // On considère que le rendement max est atteint SOUS irrigation idéale.
   // Donc si non irrigué, le rendement est diminué drastiquement (ex: -40%).
-  const irrigationMultiplier = args.irrigation === "irrigue" ? 1.0 : 0.6;
+  const irrigationMultiplier = args.irrigation === "optimal" ? 1.0 : args.irrigation === "normal" ? 0.9 : args.irrigation === "faible" ? 0.7 : 0.6;
   
   // Multiplicateur pour l'état de croissance (1-5 étoiles)
   let growthMultiplier = 1.0; // 3 stars
@@ -127,7 +127,7 @@ export function buildScenarioState(base: FarmState, scenarioId?: UUID) {
 
   const lots = [...base.lots, ...scenario.ajoutLots].map((l) => {
     if (scenario.irrigationOnLotIds.includes(l.id)) {
-      return { ...l, irrigation: "irrigue" as const };
+      return { ...l, irrigation: "optimal" as const };
     }
     if (scenario.irrigationOffLotIds.includes(l.id)) {
       return { ...l, irrigation: "non_irrigue" as const };

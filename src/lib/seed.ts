@@ -11,7 +11,7 @@ export function demoSeed(): FarmState {
     typeId: typeKor.id,
     datePlantationISO: "2021-02-15",
     nbArbres: 320,
-    irrigation: "irrigue" as const,
+    irrigation: "normal" as const,
   };
   const lot2 = {
     id: uuid(),
@@ -65,7 +65,7 @@ export function demoSeed(): FarmState {
             typeId: typeKor.id,
             datePlantationISO: new Date().toISOString().slice(0, 10),
             nbArbres: 200,
-            irrigation: "irrigue" as const,
+            irrigation: "normal" as const,
           },
         ],
         irrigationOnLotIds: [],
