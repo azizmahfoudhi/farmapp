@@ -12,10 +12,12 @@ import {
   Layers,
   BrainCircuit,
   TrendingUp,
+  CloudRain,
 } from "lucide-react";
 
 const nav = [
   { href: "/", label: "Résumé", icon: BarChart3 },
+  { href: "/pluviometrie", label: "Météo", icon: CloudRain },
   { href: "/lots", label: "Lots", icon: Layers },
   { href: "/depenses", label: "Dépenses", icon: Wallet },
   { href: "/memory", label: "Mémoire", icon: BrainCircuit },

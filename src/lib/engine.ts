@@ -77,14 +77,30 @@ export function estimatedYieldKgPerTree(args: {
   ageYears: number;
   irrigation: IrrigationStatus;
   growthStatus?: number;
+  rainMm?: number;
 }) {
   const yieldPct = yieldPercentageByAge(args.ageYears, args.type.nom);
   const scaled = yieldPct * args.type.rendementMaxKgParArbre;
   
   // L'irrigation a un impact énorme en année sèche, ou un impact standard de +30/40%
-  // On considère que le rendement max est atteint SOUS irrigation idéale.
-  // Donc si non irrigué, le rendement est diminué drastiquement (ex: -40%).
-  const irrigationMultiplier = args.irrigation === "optimal" ? 1.0 : args.irrigation === "normal" ? 0.9 : args.irrigation === "faible" ? 0.7 : 0.6;
+  let irrigationMultiplier = 0.6;
+  if (args.irrigation === "optimal") irrigationMultiplier = 1.0;
+  else if (args.irrigation === "normal") irrigationMultiplier = 0.9;
+  else if (args.irrigation === "faible") irrigationMultiplier = 0.7;
+
+  // Bonus pluie
+  const rain = args.rainMm ?? 300;
+  if (args.irrigation === "normal") {
+    if (rain >= 400) irrigationMultiplier += 0.05;
+  } else if (args.irrigation === "faible") {
+    if (rain >= 400) irrigationMultiplier += 0.15;
+    else if (rain >= 300) irrigationMultiplier += 0.05;
+  } else if (args.irrigation === "non_irrigue") {
+    if (rain >= 400) irrigationMultiplier += 0.20; // 0.80 max
+    else if (rain >= 300) irrigationMultiplier += 0.10; // 0.70
+  }
+  
+  irrigationMultiplier = Math.min(1.0, irrigationMultiplier);
   
   // Multiplicateur pour l'état de croissance (1-5 étoiles)
   let growthMultiplier = 1.0; // 3 stars
@@ -100,6 +116,7 @@ export function batchEstimatedProductionKg(args: {
   batch: Batch;
   type: TreeType;
   atISO: string;
+  rainMm?: number;
 }) {
   const ageYears = ageYearsFromISO(args.batch.datePlantationISO, args.atISO);
   const perTree = estimatedYieldKgPerTree({
@@ -107,6 +124,7 @@ export function batchEstimatedProductionKg(args: {
     ageYears,
     irrigation: args.batch.irrigation,
     growthStatus: args.batch.etatCroissance,
+    rainMm: args.rainMm,
   });
   return perTree * args.batch.nbArbres;
 }

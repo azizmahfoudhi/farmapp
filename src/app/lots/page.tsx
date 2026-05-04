@@ -98,7 +98,7 @@ function LotCard({ lot, farm, typeById, tISO }: { lot: any; farm: ReturnType<typ
 
   const type = typeById.get(lot.typeId);
   const age = ageYearsFromISO(lot.datePlantationISO, tISO);
-  const prod = type ? batchEstimatedProductionKg({ batch: lot, type, atISO: tISO }) : 0;
+  const prod = type ? batchEstimatedProductionKg({ batch: lot, type, atISO: tISO, rainMm: farm.settings.pluviometrieAnnuelleMm }) : 0;
   const cost = sumExpensesForBatch(
     {
       settings: farm.settings,

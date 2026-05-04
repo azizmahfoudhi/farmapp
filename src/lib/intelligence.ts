@@ -39,7 +39,7 @@ export function computeLotHealth(state: FarmState, lotId: UUID): HealthScore {
 
   // --- 1. Yield Performance (30%) ---
   // Compares estimated yield vs theoretical maximum based on age
-  const estimatedYield = batchEstimatedProductionKg({ batch: lot, type, atISO: nowISO });
+  const estimatedYield = batchEstimatedProductionKg({ batch: lot, type, atISO: nowISO, rainMm: state.settings.pluviometrieAnnuelleMm });
   const theoreticalMax = lot.nbArbres * type.rendementMaxKgParArbre;
   let yieldScore = theoreticalMax > 0 ? (estimatedYield / theoreticalMax) * 100 : 0;
   // If lot is very young (age < 3), score shouldn't be 0, it should just be neutral 100 because it's growing perfectly if stars are 3+
@@ -171,7 +171,7 @@ export function computeLotForecast(state: FarmState, lotId: UUID): LotForecast {
   const harvestISO = `${targetYear}-11-01T00:00:00.000Z`;
   
   // 1. Base Expected Yield (from Gompertz engine) evaluated at harvest time!
-  let predictedYield = batchEstimatedProductionKg({ batch: lot, type, atISO: harvestISO });
+  let predictedYield = batchEstimatedProductionKg({ batch: lot, type, atISO: harvestISO, rainMm: state.settings.pluviometrieAnnuelleMm });
   
   // Adjust based on historical Farm Memory Yields
   const lotYields = state.yields.filter(y => y.lotId === lotId);
@@ -282,7 +282,7 @@ export function computeMultiYearForecast(state: FarmState, yearsToProject: numbe
     for (const lot of state.lots) {
       const type = state.types.find(t => t.id === lot.typeId);
       if (!type) continue;
-      totalYield += batchEstimatedProductionKg({ batch: lot, type, atISO: harvestISO });
+      totalYield += batchEstimatedProductionKg({ batch: lot, type, atISO: harvestISO, rainMm: state.settings.pluviometrieAnnuelleMm });
     }
 
     // Coût total pour cette année (base + 2% inflation cumulative)

@@ -50,7 +50,7 @@ export default function LotDetailPage() {
     scenarios: farm.scenarios,
   };
   const cost = sumExpensesForBatch(farmState, lot.id);
-  const prod = type ? batchEstimatedProductionKg({ batch: lot, type, atISO: tISO }) : 0;
+  const prod = type ? batchEstimatedProductionKg({ batch: lot, type, atISO: tISO, rainMm: farm.settings.pluviometrieAnnuelleMm }) : 0;
   const health = computeLotHealth(farmState, lot.id);
   const forecast = computeLotForecast(farmState, lot.id);
 
