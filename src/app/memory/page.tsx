@@ -120,7 +120,7 @@ export default function MemoryPage() {
       const unitPrice = yPrixVente ? Number(yPrixVente) : undefined;
       
       if (editingEvent) {
-        const id = editingEvent.id.split("-")[1];
+        const id = editingEvent.id.substring(editingEvent.id.indexOf('-') + 1);
         await farm.actions.updateYield(id, {
           quantiteKg: totalQuantite,
           quantiteVendueKg: totalVendue,
@@ -164,7 +164,8 @@ export default function MemoryPage() {
     setEditingEvent(e);
     setYQuantite(String(e.amount || ""));
     // We need to find the yield record to get vendue and prix
-    const yr = farm.yields.find(y => y.id === e.id.split('-')[1]);
+    const id = e.id.substring(e.id.indexOf('-') + 1);
+    const yr = farm.yields.find(y => y.id === id);
     if (yr) {
       setYQuantiteVendue(String(yr.quantiteVendueKg || ""));
       setYPrixVente(String(yr.prixVenteUnitaire || ""));
@@ -178,7 +179,7 @@ export default function MemoryPage() {
     if (!confirm("Voulez-vous vraiment supprimer cet événement ?")) return;
     
     try {
-      const id = e.id.split("-")[1];
+      const id = e.id.substring(e.id.indexOf('-') + 1);
       if (e.type === "yield") {
         await farm.actions.removeYield(id);
       } else if (e.type === "expense") {
