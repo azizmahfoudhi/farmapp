@@ -77,15 +77,16 @@ export function computeLotHealth(state: FarmState, lotId: UUID, rainMm?: number)
   // --- 3. Financial Efficiency (25%) ---
   const currentCost = sumExpensesForBatch(state, lotId);
   const revenue = estimatedYield * (state.settings.prixKgOlives || 1);
-  const margin = revenue - currentCost;
   let finScore = 50;
-  if (revenue > 0) {
-    const marginPct = margin / revenue;
-    finScore = 50 + (marginPct * 100); // 0 margin = 50, 50% margin = 100
-  } else if (currentCost === 0) {
-    finScore = 100; // No costs, no revenue = neutral
+  if (revenue > 0 && currentCost > 0) {
+    const ratio = (revenue - currentCost) / Math.max(revenue, currentCost);
+    finScore = 50 + (ratio * 50);
+  } else if (revenue > 0 && currentCost === 0) {
+    finScore = 100;
+  } else if (revenue === 0 && currentCost > 0) {
+    finScore = 20;
   } else {
-    finScore = 30; // Costs but no revenue (yet)
+    finScore = 80;
   }
   finScore = clamp(finScore);
 
