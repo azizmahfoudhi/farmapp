@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/cn";
 
-type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
+type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "outline";
 type ButtonSize = "sm" | "md" | "lg";
 
 export function Button({
@@ -30,6 +30,8 @@ export function Button({
           "text-foreground hover:bg-black/[0.04] dark:hover:bg-white/[0.06]",
         variant === "danger" &&
           "bg-danger text-white hover:brightness-110 dark:text-black",
+        variant === "outline" &&
+          "bg-transparent text-foreground border border-border/60 hover:bg-black/[0.03] dark:hover:bg-white/[0.06]",
         className,
       )}
       {...props}
