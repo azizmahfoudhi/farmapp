@@ -136,15 +136,36 @@ export function sumExpensesForBatch(state: FarmState, lotId: UUID) {
   const lot = state.lots.find(l => l.id === lotId);
   if (!lot) return direct;
 
-  const totalTrees = state.lots.reduce((sum, l) => sum + l.nbArbres, 0);
-  if (totalTrees <= 0) return direct;
+  const lotDate = new Date(lot.datePlantationISO).getTime();
+  const currentTotalTrees = state.lots.reduce((sum, l) => sum + l.nbArbres, 0);
 
-  const globalExpenses = state.depenses
+  // Global expenses (lotId is null)
+  const shareOfGlobal = state.depenses
     .filter((e) => !e.lotId)
-    .reduce((acc, e) => acc + e.montant, 0);
+    .reduce((acc, e) => {
+      const isDurable = e.categorie === "equipement" || e.categorie === "plantation";
+      const expenseDate = new Date(e.dateISO).getTime();
+      
+      if (isDurable) {
+        // Durable items share across ALL current trees
+        if (currentTotalTrees <= 0) return acc;
+        const ratio = lot.nbArbres / currentTotalTrees;
+        return acc + (e.montant * ratio);
+      } else {
+        // Punctual items share only across trees EXISTING at that time
+        if (expenseDate < lotDate) return acc; // Lot didn't exist yet
+        
+        const treesAtTime = state.lots
+          .filter(l => new Date(l.datePlantationISO).getTime() <= expenseDate)
+          .reduce((sum, l) => sum + l.nbArbres, 0);
+          
+        if (treesAtTime <= 0) return acc;
+        const ratio = lot.nbArbres / treesAtTime;
+        return acc + (e.montant * ratio);
+      }
+    }, 0);
 
-  const ratio = lot.nbArbres / totalTrees;
-  return direct + (globalExpenses * ratio);
+  return direct + shareOfGlobal;
 }
 
 export function buildScenarioState(base: FarmState, scenarioId?: UUID) {
