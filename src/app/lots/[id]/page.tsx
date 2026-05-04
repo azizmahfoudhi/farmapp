@@ -198,7 +198,12 @@ export default function LotDetailPage() {
           )}
 
           <CardContent className="grid grid-cols-2 gap-2 mt-4">
-            <Kpi label="Total Dépenses" value={formatMoneyDT(cost)} className="text-danger" />
+            <Kpi 
+              label="Total Investi" 
+              value={formatMoneyDT(cost)} 
+              className="text-danger" 
+              sub="Inclut part des frais globaux"
+            />
             <Kpi label="Dépense / arbre" value={formatMoneyDT(perTreeCost)} />
             <Kpi label="Production estimée (Année)" value={formatProduction(prod, lotAge)} />
             <Kpi label="Rendement estimé / arbre" value={prod > 0 ? `${formatNumber(yieldPerTree, 1)} kg` : "N/A"} />
@@ -465,11 +470,12 @@ function TreatmentRow({ t, farm }: { t: any; farm: ReturnType<typeof useFarmData
   );
 }
 
-function Kpi({ label, value, className = "" }: { label: string; value: string, className?: string }) {
+function Kpi({ label, value, sub, className = "" }: { label: string; value: string, sub?: string, className?: string }) {
   return (
     <div className="rounded-xl border border-border/40 bg-background/50 p-3">
       <div className="text-xs text-muted font-medium mb-1">{label}</div>
       <div className={`text-base font-bold ${className}`}>{value}</div>
+      {sub && <div className="text-[10px] text-muted-foreground mt-1 opacity-70 leading-tight">{sub}</div>}
     </div>
   );
 }
