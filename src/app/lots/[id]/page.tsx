@@ -236,18 +236,24 @@ export default function LotDetailPage() {
                   {health.total}<span className="text-lg opacity-50">/100</span>
                 </div>
               </div>
-              <div className="grid grid-cols-4 gap-1 mb-2">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-4 mb-2 bg-background/30 p-4 rounded-2xl border border-border/20">
                 {[
-                  { label: "Rendement", val: health.breakdown.yield },
-                  { label: "Eau", val: health.breakdown.water },
-                  { label: "Finances", val: health.breakdown.financial },
-                  { label: "Stress", val: health.breakdown.stress },
+                  { label: "Rendement", val: health.breakdown.yield, color: health.breakdown.yield < 50 ? 'from-danger/80 to-danger' : health.breakdown.yield < 80 ? 'from-warning/80 to-warning' : 'from-success/80 to-success' },
+                  { label: "Eau", val: health.breakdown.water, color: health.breakdown.water < 50 ? 'from-danger/80 to-danger' : health.breakdown.water < 80 ? 'from-warning/80 to-warning' : 'from-success/80 to-success' },
+                  { label: "Finances", val: health.breakdown.financial, color: health.breakdown.financial < 50 ? 'from-danger/80 to-danger' : health.breakdown.financial < 80 ? 'from-warning/80 to-warning' : 'from-success/80 to-success' },
+                  { label: "Stress", val: health.breakdown.stress, color: health.breakdown.stress < 50 ? 'from-danger/80 to-danger' : health.breakdown.stress < 80 ? 'from-warning/80 to-warning' : 'from-success/80 to-success' },
                 ].map((p, idx) => (
-                  <div key={idx} className="flex flex-col items-center gap-1">
-                    <div className="h-16 w-full bg-background rounded-full overflow-hidden flex flex-col justify-end border border-border/40">
-                      <div className={`w-full transition-all duration-1000 ${p.val < 50 ? 'bg-danger' : p.val < 80 ? 'bg-warning' : 'bg-success'}`} style={{ height: `${p.val}%` }} />
+                  <div key={idx} className="space-y-2">
+                    <div className="flex justify-between items-center px-0.5">
+                      <span className="text-[11px] uppercase tracking-widest text-muted-foreground font-black">{p.label}</span>
+                      <span className="text-xs font-black tabular-nums">{p.val}%</span>
                     </div>
-                    <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium truncate w-full text-center">{p.label}</span>
+                    <div className="h-2 w-full bg-background/50 rounded-full overflow-hidden border border-border/10 shadow-inner">
+                      <div 
+                        className={`h-full transition-all duration-1000 ease-out bg-gradient-to-r ${p.color}`} 
+                        style={{ width: `${p.val}%` }} 
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
