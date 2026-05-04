@@ -31,7 +31,8 @@ export function useWeather() {
   useEffect(() => {
     async function fetchWeather() {
       try {
-        const apiKey = "8y6w81yh8ld4olh3llorh3b2yti48jdz9t9fa2w5";
+        const apiKey = process.env.NEXT_PUBLIC_METEOSOURCE_API_KEY;
+        if (!apiKey) throw new Error("API Key manquante");
         
         const res = await fetch(`https://www.meteosource.com/api/v1/free/point?lat=${lat}&lon=${lon}&sections=current,daily&key=${apiKey}`);
         if (!res.ok) throw new Error("Erreur de l'API Meteosource");
