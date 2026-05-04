@@ -23,9 +23,6 @@ import {
   updateTreeType as dbUpdateTreeType,
   updateBatch as dbUpdateBatch,
   updateExpense as dbUpdateExpense,
-  createTask,
-  updateTask as dbUpdateTask,
-  deleteTask,
   createTreatment,
   updateTreatment as dbUpdateTreatment,
   deleteTreatment,
@@ -40,7 +37,6 @@ export function useFarmData() {
   const [types, setTypes] = React.useState<TreeType[]>([]);
   const [lots, setLots] = React.useState<Batch[]>([]);
   const [depenses, setDepenses] = React.useState<Expense[]>([]);
-  const [tasks, setTasks] = React.useState<FarmTask[]>([]);
   const [treatments, setTreatments] = React.useState<Treatment[]>([]);
   const [yields, setYields] = React.useState<YieldRecord[]>([]);
   const [scenarios, setScenarios] = React.useState<Scenario[]>([]);
@@ -55,7 +51,6 @@ export function useFarmData() {
         listBatches(),
         listExpenses(),
         listScenarios(),
-        listTasks(),
         listTreatments(),
         listYields(),
       ]);
@@ -76,7 +71,6 @@ export function useFarmData() {
       setLots(l);
       setDepenses(d);
       setScenarios(sc);
-      setTasks(tk);
       setTreatments(tr);
       setYields(y);
     } catch (e: any) {
@@ -137,18 +131,7 @@ export function useFarmData() {
         setDepenses((d) => d.filter((x) => x.id !== id));
       },
 
-      async addTask(input: Omit<FarmTask, "id">) {
-        const created = await createTask(input);
-        setTasks((prev) => [created, ...prev]);
-      },
-      async updateTask(id: UUID, input: Partial<Omit<FarmTask, "id">>) {
-        await dbUpdateTask(id, input);
-        setTasks((prev) => prev.map((x) => (x.id === id ? { ...x, ...input } : x)));
-      },
-      async removeTask(id: UUID) {
-        await deleteTask(id);
-        setTasks((prev) => prev.filter((x) => x.id !== id));
-      },
+
 
       async addTreatment(input: Omit<Treatment, "id">) {
         const created = await createTreatment(input);
@@ -183,7 +166,6 @@ export function useFarmData() {
     types,
     lots,
     depenses,
-    tasks,
     treatments,
     yields,
     scenarios,

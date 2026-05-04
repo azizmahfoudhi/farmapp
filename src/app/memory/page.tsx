@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useFarmData } from "@/lib/useFarmData";
 import { formatDateLong, formatMoneyDT, formatKg } from "@/lib/format";
-import { BrainCircuit, Search, Droplets, Wallet, ShieldAlert, CheckCircle2, Sprout, Plus, Printer } from "lucide-react";
+import { BrainCircuit, Search, Wallet, ShieldAlert, CheckCircle2, Sprout, Plus, Printer } from "lucide-react";
 import { Select } from "@/components/ui/Select";
 
 type MemoryEvent = {
@@ -70,22 +70,7 @@ export default function MemoryPage() {
     });
   });
 
-  // 3. Tasks
-  farm.tasks.forEach(t => {
-    // Only show completed tasks or overdue tasks as events
-    const isCompleted = t.statut === "termine";
-    events.push({
-      id: `tsk-${t.id}`,
-      dateISO: isCompleted && t.dateRealiseeISO ? t.dateRealiseeISO : t.datePrevueISO,
-      type: "task",
-      title: `Action : ${t.titre}`,
-      subtitle: `Type: ${t.typeTache} | Statut: ${t.statut}`,
-      lotId: t.lotId,
-      lotName: farm.lots.find(l => l.id === t.lotId)?.nom,
-      icon: isCompleted ? <CheckCircle2 className="w-4 h-4" /> : <Droplets className="w-4 h-4" />,
-      colorClass: isCompleted ? "bg-primary/10 text-primary border-primary/20" : "bg-muted/10 text-muted-foreground border-muted/20",
-    });
-  });
+
 
   // 4. Yields
   farm.yields.forEach(y => {
@@ -236,7 +221,6 @@ export default function MemoryPage() {
               <option value="yield">🌾 Récoltes & Rendements</option>
               <option value="expense">💸 Dépenses</option>
               <option value="treatment">🐛 Traitements</option>
-              <option value="task">🚜 Actions Agricoles</option>
             </Select>
           </div>
         </div>
