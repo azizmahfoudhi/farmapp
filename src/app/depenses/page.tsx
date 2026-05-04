@@ -271,7 +271,16 @@ function ExpenseRow({ d, farm }: { d: any; farm: ReturnType<typeof useFarmData> 
         <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted" onClick={() => setIsEditing(true)}>
           <Edit2 className="w-4 h-4" />
         </Button>
-        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-danger" onClick={() => farm.actions.removeExpense(d.id)}>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="h-8 w-8 p-0 text-danger" 
+          onClick={() => {
+            if (confirm(`Voulez-vous vraiment supprimer cette dépense ?`)) {
+              farm.actions.removeExpense(d.id);
+            }
+          }}
+        >
           <Trash2 className="w-4 h-4" />
         </Button>
       </div>

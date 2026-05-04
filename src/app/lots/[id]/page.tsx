@@ -447,7 +447,16 @@ function TreatmentRow({ t, farm }: { t: any; farm: ReturnType<typeof useFarmData
           <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted" onClick={() => setIsEditing(true)}>
             <Edit2 className="w-4 h-4" />
           </Button>
-          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-danger" onClick={() => farm.actions.removeTreatment(t.id)}>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="h-8 w-8 p-0 text-danger" 
+            onClick={() => {
+              if (confirm(`Voulez-vous vraiment supprimer ce traitement ?`)) {
+                farm.actions.removeTreatment(t.id);
+              }
+            }}
+          >
             <Trash2 className="w-4 h-4" />
           </Button>
         </div>
