@@ -4,6 +4,7 @@ import * as React from "react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
+import { cn } from "@/lib/cn";
 import { Input } from "@/components/ui/Input";
 import { useFarmData } from "@/lib/useFarmData";
 import { formatMoneyDT } from "@/lib/format";

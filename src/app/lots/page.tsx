@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
+import { cn } from "@/lib/cn";
 import { ageYearsFromISO, batchEstimatedProductionKg, sumExpensesForBatch } from "@/lib/engine";
 import { formatKg, formatMoneyDT, formatNumber, formatProduction } from "@/lib/format";
 import { todayISO } from "@/lib/derive";
