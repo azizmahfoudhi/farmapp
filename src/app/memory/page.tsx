@@ -376,9 +376,3 @@ export default function MemoryPage() {
     </AppShell>
   );
 }
->
-
-      </div>
-    </AppShell>
-  );
-}
