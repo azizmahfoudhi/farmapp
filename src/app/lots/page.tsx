@@ -111,7 +111,6 @@ function LotCard({ lot, farm, typeById, tISO, rainMm }: { lot: any; farm: Return
       lots: farm.lots,
       depenses: farm.depenses,
       yields: farm.yields,
-      tasks: farm.tasks,
       treatments: farm.treatments,
       scenarios: farm.scenarios,
     },
@@ -124,7 +123,6 @@ function LotCard({ lot, farm, typeById, tISO, rainMm }: { lot: any; farm: Return
     lots: farm.lots,
     depenses: farm.depenses,
     yields: farm.yields,
-    tasks: farm.tasks,
     treatments: farm.treatments,
     scenarios: farm.scenarios,
   };

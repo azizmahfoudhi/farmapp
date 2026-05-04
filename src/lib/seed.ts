@@ -52,7 +52,6 @@ export function demoSeed(): FarmState {
       },
     ],
     yields: [],
-    tasks: [],
     treatments: [],
     scenarios: [
       {

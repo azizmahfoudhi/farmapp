@@ -44,7 +44,6 @@ const initial: FarmState = {
   lots: [],
   depenses: [],
   yields: [],
-  tasks: [],
   treatments: [],
   scenarios: [],
 };

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import type { Batch, Expense, FarmSettings, FarmTask, Scenario, Treatment, TreeType, UUID, YieldRecord } from "@/lib/domain";
+import type { Batch, Expense, FarmSettings, Scenario, Treatment, TreeType, UUID, YieldRecord } from "@/lib/domain";
 import {
   createBatch,
   createExpense,
@@ -15,7 +15,7 @@ import {
   listBatches,
   listExpenses,
   listScenarios,
-  listTasks,
+
   listTreatments,
   listTreeTypes,
   listYields,
@@ -45,7 +45,7 @@ export function useFarmData() {
     setLoading(true);
     setError(null);
     try {
-      const [s, t, l, d, sc, tk, tr, y] = await Promise.all([
+      const [s, t, l, d, sc, tr, y] = await Promise.all([
         getOrCreateSettings(),
         listTreeTypes(),
         listBatches(),

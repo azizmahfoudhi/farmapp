@@ -2,7 +2,7 @@ import type {
   Batch,
   Expense,
   FarmSettings,
-  FarmTask,
+
   IrrigationStatus,
   Scenario,
   TreeType,
@@ -116,17 +116,7 @@ function mapScenario(r: DbScenarioRow): Scenario {
 }
 
 
-function mapTask(r: any): FarmTask {
-  return {
-    id: r.id,
-    titre: r.titre,
-    datePrevueISO: r.date_prevue,
-    dateRealiseeISO: r.date_realisee ?? undefined,
-    statut: r.statut as any,
-    typeTache: r.type_tache as any,
-    lotId: r.lot_id ?? undefined,
-  };
-}
+
 
 function mapTreatment(r: any): Treatment {
   return {
@@ -338,46 +328,7 @@ export async function updateExpense(id: UUID, input: Partial<Omit<Expense, "id">
   if (error) throw error;
 }
 
-// TASKS
-export async function listTasks(): Promise<FarmTask[]> {
-  const sb = supabaseBrowser();
-  const { data, error } = await sb.from("tasks").select("*").order("date_prevue", { ascending: true });
-  if (error) throw error;
-  return (data as any[]).map(mapTask);
-}
 
-export async function createTask(input: Omit<FarmTask, "id">) {
-  const sb = supabaseBrowser();
-  const { data, error } = await sb.from("tasks").insert({
-    titre: input.titre,
-    date_prevue: input.datePrevueISO,
-    date_realisee: input.dateRealiseeISO ?? null,
-    statut: input.statut,
-    type_tache: input.typeTache,
-    lot_id: input.lotId ?? null,
-  }).select("*").single();
-  if (error) throw error;
-  return mapTask(data as any);
-}
-
-export async function updateTask(id: UUID, input: Partial<Omit<FarmTask, "id">>) {
-  const sb = supabaseBrowser();
-  const payload: any = {};
-  if (input.titre !== undefined) payload.titre = input.titre;
-  if (input.datePrevueISO !== undefined) payload.date_prevue = input.datePrevueISO;
-  if (input.dateRealiseeISO !== undefined) payload.date_realisee = input.dateRealiseeISO;
-  if (input.statut !== undefined) payload.statut = input.statut;
-  if (input.typeTache !== undefined) payload.type_tache = input.typeTache;
-  if (input.lotId !== undefined) payload.lot_id = input.lotId;
-  const { error } = await sb.from("tasks").update(payload).eq("id", id);
-  if (error) throw error;
-}
-
-export async function deleteTask(id: UUID) {
-  const sb = supabaseBrowser();
-  const { error } = await sb.from("tasks").delete().eq("id", id);
-  if (error) throw error;
-}
 
 // TREATMENTS
 export async function listTreatments(): Promise<Treatment[]> {
