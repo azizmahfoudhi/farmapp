@@ -14,6 +14,17 @@ import { computeLotHealth, computeLotForecast } from "@/lib/intelligence";
 export default function StructurePage() {
   const farm = useFarmData();
   const [isAddingLot, setIsAddingLot] = React.useState(false);
+  const [editingTypeId, setEditingTypeId] = React.useState<string | null>(null);
+  const [editMaxYield, setEditMaxYield] = React.useState("");
+
+  async function calibrateIA() {
+    if (!confirm("Voulez-vous mettre à jour vos modèles botaniques selon les derniers standards scientifiques (Chemlali 60kg, Koroneiki 45kg) ?")) return;
+    for (const t of farm.types) {
+      if (t.nom.toLowerCase().includes("chemlali")) await farm.actions.updateTreeType(t.id, { rendementMaxKgParArbre: 60 });
+      if (t.nom.toLowerCase().includes("koroneiki")) await farm.actions.updateTreeType(t.id, { rendementMaxKgParArbre: 45 });
+    }
+    alert("IA Calibrée !");
+  }
 
   // Varieties Performance Pivot Logic
   const varietiesAnalysis = farm.types.map(type => {
@@ -51,12 +62,22 @@ export default function StructurePage() {
     <AppShell title="Configuration & Structure">
       <div className="flex flex-col gap-10 animate-in fade-in slide-in-from-bottom-6 duration-1000 fill-mode-both">
         
-        {/* HERO SECTION */}
-        <div className="px-2">
-          <h1 className="text-4xl font-black tracking-tighter bg-gradient-to-r from-primary to-emerald-400 bg-clip-text text-transparent">
-            Architecture de la Ferme
-          </h1>
-          <p className="text-muted-foreground font-medium pt-1 max-w-xl text-lg">Définissez vos modèles biologiques et gérez l'infrastructure de vos parcelles.</p>
+        <div className="px-2 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <h1 className="text-4xl font-black tracking-tighter bg-gradient-to-r from-primary to-emerald-400 bg-clip-text text-transparent">
+              Architecture de la Ferme
+            </h1>
+            <p className="text-muted-foreground font-medium pt-1 max-w-xl text-lg">Définissez vos modèles biologiques et gérez l'infrastructure de vos parcelles.</p>
+          </div>
+          <Button 
+            variant="secondary" 
+            size="sm" 
+            onClick={calibrateIA}
+            className="rounded-xl font-black uppercase tracking-widest text-[10px] gap-2 border-primary/20 hover:bg-primary/5 text-primary"
+          >
+            <BrainCircuit className="w-4 h-4" />
+            Calibrer IA (Standards)
+          </Button>
         </div>
 
         {/* PERFORMANCE PIVOT */}
@@ -159,8 +180,40 @@ export default function StructurePage() {
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="text-lg font-black tracking-tight">{type.nom}</div>
-                          <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                            {type.isIntensive ? "Système Intensif" : "Système Traditionnel"} • Max {type.rendementMaxKgParArbre}kg/arbre
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                              {type.isIntensive ? "Système Intensif" : "Système Traditionnel"} •
+                            </span>
+                            {editingTypeId === type.id ? (
+                              <div className="flex items-center gap-1 animate-in zoom-in-95">
+                                <Input 
+                                  className="h-7 w-16 text-[10px] font-black px-2 rounded-lg" 
+                                  value={editMaxYield} 
+                                  onChange={e => setEditMaxYield(e.target.value)}
+                                  autoFocus
+                                />
+                                <button onClick={() => {
+                                  farm.actions.updateTreeType(type.id, { rendementMaxKgParArbre: Number(editMaxYield) });
+                                  setEditingTypeId(null);
+                                }} className="p-1 text-success hover:bg-success/10 rounded-md">
+                                  <Check className="w-3.5 h-3.5" />
+                                </button>
+                                <button onClick={() => setEditingTypeId(null)} className="p-1 text-danger hover:bg-danger/10 rounded-md">
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            ) : (
+                              <button 
+                                onClick={() => {
+                                  setEditingTypeId(type.id);
+                                  setEditMaxYield(String(type.rendementMaxKgParArbre));
+                                }}
+                                className="text-[10px] font-black uppercase tracking-widest text-primary hover:underline flex items-center gap-1 group/edit"
+                              >
+                                Max {type.rendementMaxKgParArbre}kg/arbre
+                                <Edit2 className="w-3 h-3 opacity-0 group-hover/edit:opacity-100 transition-opacity" />
+                              </button>
+                            )}
                           </div>
                         </div>
                         <div className="text-right">

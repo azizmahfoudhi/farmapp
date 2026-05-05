@@ -215,8 +215,19 @@ export function computeLotForecast(state: FarmState, lotId: UUID, rainMm?: numbe
       
       // Alternance detection: only if the last yield was last year
       if (yieldYear === currentYear - 1 && lastYield.quantiteKg > predictedYield * 1.1) {
-        predictedYield *= 0.6; // Strong alternance drop (40%) after a peak year
-        risks.push("Risque d'alternance bi-annuelle : Année de repos végétatif suite à un pic de production.");
+        let alternanceFactor = 0.7; // Default
+        const varietyNom = type.nom.toLowerCase();
+        
+        if (varietyNom.includes("chemlali")) {
+          alternanceFactor = 0.5; // Very strong alternance
+        } else if (varietyNom.includes("koroneiki")) {
+          alternanceFactor = 0.85; // More regular production
+        } else if (varietyNom.includes("chétoui")) {
+          alternanceFactor = 0.6; // Strong alternance
+        }
+
+        predictedYield *= alternanceFactor;
+        risks.push(`Risque d'alternance (${type.nom}) : Année de repos végétatif suite à un pic de production.`);
       }
     }
   } else {
