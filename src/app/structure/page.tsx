@@ -121,32 +121,39 @@ export default function StructurePage() {
                         {v.rendementMaxKgParArbre} kg/arbre
                       </td>
                       <td className="p-6 border-b border-border/40">
-                        <div className="flex items-center gap-3 w-48">
-                           <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                        <div className="flex items-center gap-4 w-48">
+                           <div className="flex-1 h-2.5 bg-muted/20 rounded-full overflow-hidden p-[1px]">
                               <div 
-                                className={cn("h-full transition-all duration-1000", v.avgHealth > 70 ? "bg-success" : v.avgHealth > 40 ? "bg-warning" : "bg-danger")} 
+                                className={cn(
+                                  "h-full rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(var(--primary-rgb),0.3)]", 
+                                  v.avgHealth > 70 ? "bg-gradient-to-r from-emerald-500 to-success" : v.avgHealth > 40 ? "bg-gradient-to-r from-amber-400 to-warning" : "bg-gradient-to-r from-red-500 to-danger"
+                                )} 
                                 style={{ width: `${v.avgHealth}%` }} 
                               />
                            </div>
-                           <span className="text-sm font-black tabular-nums">{Math.round(v.avgHealth)}%</span>
+                           <span className="text-sm font-black tabular-nums tracking-tighter">{Math.round(v.avgHealth)}%</span>
                         </div>
                       </td>
                       <td className="p-6 border-b border-border/40">
-                        <div className="text-xl font-black text-primary">
-                          {v.totalTrees > 0 ? (Math.round(v.actualYieldPerTree * 10) / 10) : "—"} <span className="text-xs">{v.totalTrees > 0 ? "kg/arbre" : ""}</span>
+                        <div className="flex flex-col">
+                          <div className="text-xl font-black text-primary tabular-nums tracking-tighter">
+                            {v.totalTrees > 0 ? (Math.round(v.actualYieldPerTree * 10) / 10).toFixed(1) : "—"} <span className="text-[10px] uppercase ml-0.5">{v.totalTrees > 0 ? "kg/arbre" : ""}</span>
+                          </div>
+                          <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none mt-1">Projection IA Actuelle</div>
                         </div>
-                        <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Projection IA actuelle</div>
                       </td>
                       <td className="p-6 border-b border-border/40">
-                         {v.totalTrees === 0 ? (
-                            <span className="bg-muted/10 text-muted-foreground text-[10px] font-black px-3 py-1 rounded-full border border-border/20 uppercase tracking-widest">Inactif</span>
-                         ) : v.avgHealth > 75 ? (
-                           <span className="bg-success/10 text-success text-[10px] font-black px-3 py-1 rounded-full border border-success/20 uppercase tracking-widest">Optimisé</span>
-                         ) : v.avgHealth > 50 ? (
-                           <span className="bg-warning/10 text-warning text-[10px] font-black px-3 py-1 rounded-full border border-warning/20 uppercase tracking-widest">A surveiller</span>
-                         ) : (
-                           <span className="bg-danger/10 text-danger text-[10px] font-black px-3 py-1 rounded-full border border-danger/20 uppercase tracking-widest">Stress Critique</span>
-                         )}
+                        <div className="flex flex-wrap gap-2">
+                           {v.totalTrees === 0 ? (
+                              <span className="bg-muted/10 text-muted-foreground text-[9px] font-black px-3 py-1.5 rounded-xl border border-border/20 uppercase tracking-widest">Inactif</span>
+                           ) : v.avgHealth > 75 ? (
+                             <span className="bg-success/10 text-success text-[9px] font-black px-3 py-1.5 rounded-xl border border-success/20 uppercase tracking-widest shadow-sm shadow-success/5">Optimisé</span>
+                           ) : v.avgHealth > 50 ? (
+                             <span className="bg-warning/10 text-warning text-[9px] font-black px-3 py-1.5 rounded-xl border border-warning/20 uppercase tracking-widest shadow-sm shadow-warning/5">A surveiller</span>
+                           ) : (
+                             <span className="bg-danger/10 text-danger text-[9px] font-black px-3 py-1.5 rounded-xl border border-danger/20 uppercase tracking-widest shadow-sm shadow-danger/5 whitespace-nowrap">Stress Critique</span>
+                           )}
+                        </div>
                       </td>
                     </tr>
                   ))}
