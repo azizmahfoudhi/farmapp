@@ -19,7 +19,7 @@ import { computeGlobalHealth, computeLotHealth } from "@/lib/intelligence";
 import { formatKg, formatMoneyDT, formatNumber } from "@/lib/format";
 import { cn } from "@/lib/cn";
 import { useFarmData } from "@/lib/useFarmData";
-import { Sprout, Layers, Wallet, ArrowRight, TrendingUp, Settings, BrainCircuit, Sun, Cloud, Snowflake, CloudRain, Moon } from "lucide-react";
+import { Trees, Sprout, Layers, Wallet, ArrowRight, TrendingUp, Settings, BrainCircuit, Sun, Cloud, Snowflake, CloudRain, Moon } from "lucide-react";
 import { useHistoricalRain } from "@/lib/useHistoricalRain";
 
 export default function HomePage() {
