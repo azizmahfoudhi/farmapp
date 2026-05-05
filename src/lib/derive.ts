@@ -191,7 +191,7 @@ export function buildInsights(state: FarmState, weather: WeatherData | null = nu
       titre: "Parcelles sous-performantes",
       icon: "📉",
       priorityScore: 75,
-      whatIsHappening: `${underperformingLots.length} lot(s) (ex: ${underperformingLots[0].nom}) présentent une production estimée très faible par rapport au potentiel théorique (Vigueur 1-2 étoiles).`,
+      whatIsHappening: `${underperformingLots.length} lot(s) (ex: ${underperformingLots[0].nom}) signalent une production estimée très faible par rapport à leur potentiel.`,
       whatToDo: "Inspectez le système d'irrigation de ces lots et prévoyez un apport en azote/potasse ciblé.",
       whyItMatters: "Ces lots font chuter la production globale. Un traitement correctif rapide peut réactiver la pousse avant le printemps."
     });
