@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { ageYearsFromISO, batchEstimatedProductionKg, sumExpensesForBatch, estimatedYieldKgPerTree } from "@/lib/engine";
 import { computeLotHealth, computeLotForecast } from "@/lib/intelligence";
 import { todayISO } from "@/lib/derive";
-import { formatDateLong, formatKg, formatMoneyDT, formatNumber, formatProduction } from "@/lib/format";
+import { formatDateLong, formatAge, formatKg, formatMoneyDT, formatNumber, formatProduction } from "@/lib/format";
 import { useFarmData } from "@/lib/useFarmData";
 import { useHistoricalRain } from "@/lib/useHistoricalRain";
 import { Star, ShieldAlert, Bug, Plus, Trash2, Edit2, Check, X, Sprout } from "lucide-react";
@@ -94,7 +94,7 @@ export default function LotDetailPage() {
                 <CardTitle className="text-xl">Résumé</CardTitle>
                 <CardDescription>
                   {lot.typeId && type ? type.nom : `${type?.nom || "Chemlali"} (Défaut)`} · {formatNumber(lot.nbArbres)} arbres ·{" "}
-                  {formatNumber(lotAge, 1)} ans · {lot.irrigation === "optimal" ? "Irrigué (Optimal)" : lot.irrigation === "normal" ? "Irrigué (Normal)" : lot.irrigation === "faible" ? "Irrigué (Faible)" : "Bour (Non irrigué)"}
+                  {formatAge(lotAge)} · {lot.irrigation === "optimal" ? "Irrigué (Optimal)" : lot.irrigation === "normal" ? "Irrigué (Normal)" : lot.irrigation === "faible" ? "Irrigué (Faible)" : "Bour (Non irrigué)"}
                   {lot.etatCroissance !== 3 && (
                     <>
                       {" "}·{" "}
@@ -224,7 +224,7 @@ export default function LotDetailPage() {
             </Card>
             <Card className="border-border/50 bg-card/40 backdrop-blur-sm p-4 text-center">
               <div className="text-sm font-medium text-muted">Âge</div>
-              <div className="font-bold text-lg">{lotAge.toFixed(1)} ans</div>
+              <div className="font-bold text-lg">{formatAge(lotAge)}</div>
             </Card>
           </div>
 

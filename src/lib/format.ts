@@ -29,3 +29,17 @@ export function formatDateLong(iso: string) {
   return format(parseISO(iso), "d MMM yyyy", { locale: fr });
 }
 
+export function formatAge(ageYears: number): string {
+  const totalMonths = Math.round(ageYears * 12);
+  const years = Math.floor(totalMonths / 12);
+  const months = totalMonths % 12;
+
+  const yearsStr = years > 0 ? (years === 1 ? "1 an" : `${years} ans`) : "";
+  const monthsStr = months > 0 ? `${months} mois` : "";
+
+  if (yearsStr && monthsStr) {
+    return `${yearsStr} et ${monthsStr}`;
+  }
+  return yearsStr || monthsStr || "Moins d'un mois";
+}
+

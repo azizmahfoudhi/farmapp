@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 import { cn } from "@/lib/cn";
 import { ageYearsFromISO, batchEstimatedProductionKg, sumExpensesForBatch } from "@/lib/engine";
-import { formatKg, formatMoneyDT, formatNumber, formatProduction } from "@/lib/format";
+import { formatAge, formatKg, formatMoneyDT, formatNumber, formatProduction } from "@/lib/format";
 import { todayISO } from "@/lib/derive";
 import { useFarmData } from "@/lib/useFarmData";
 import { computeLotHealth } from "@/lib/intelligence";
@@ -281,7 +281,7 @@ function LotCard({ lot, farm, typeById, tISO, rainMm }: { lot: any; farm: Return
                 </span>
               )}
               <span className="w-1 h-1 rounded-full bg-border" />
-              <span className="text-muted-foreground">{formatNumber(age, 1)} ans</span>
+              <span className="text-muted-foreground">{formatAge(age)}</span>
               {lot.etatCroissance !== 3 && (
                 <>
                   <span className="w-1 h-1 rounded-full bg-border" />
