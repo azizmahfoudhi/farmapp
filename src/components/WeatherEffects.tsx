@@ -17,13 +17,26 @@ export function WeatherEffects() {
   const { data: weather } = useWeather();
 
   const effects = useMemo(() => {
-    const defaultEffects = { drops: [] as EffectElement[], clouds: [] as EffectElement[], leaves: [] as EffectElement[], stars: [] as EffectElement[], birds: [] as EffectElement[], isHot: false, showMoon: false };
+    const defaultEffects = { 
+        drops: [] as EffectElement[], 
+        clouds: [] as EffectElement[], 
+        leaves: [] as EffectElement[], 
+        stars: [] as EffectElement[], 
+        birds: [] as EffectElement[], 
+        fireflies: [] as EffectElement[],
+        sunrays: [] as EffectElement[],
+        shootingStars: [] as EffectElement[],
+        isHot: false, 
+        showMoon: false,
+        showLightning: false,
+        showFog: false
+    };
     if (!weather) return defaultEffects;
 
     const precip = weather.current.precipitation;
     const wind = weather.current.windSpeed;
     const temp = weather.current.temp;
-    const weatherCode = weather.current.weatherCode; // Meteosource specific: 2-6 is clouds
+    const weatherCode = weather.current.weatherCode; // Meteosource specific: 2-6 is clouds, 7+ is precipitation/storms
     
     const hour = new Date().getHours();
     const isNight = !weather.current.isDay || hour >= 20 || hour < 5;
@@ -77,9 +90,19 @@ export function WeatherEffects() {
       result.isHot = true;
     }
 
-    // 5. STARS & MOON (Night, clear or partly cloudy)
+    // 5. SUNRAYS (Clear day)
+    if (isDay && weatherCode < 4 && precip === 0) {
+        result.sunrays = Array.from({ length: 3 }).map((_, i) => ({
+            id: i,
+            left: 20 + Math.random() * 60,
+            delay: Math.random() * 5,
+            duration: 8 + Math.random() * 4,
+        }));
+    }
+
+    // 6. STARS, MOON & SHOOTING STARS (Night, clear or partly cloudy)
     if (isNight && precip === 0) {
-      const starCount = weatherCode > 6 ? 15 : 40; // fewer stars if cloudy
+      const starCount = weatherCode > 6 ? 15 : 50; // fewer stars if cloudy
       result.stars = Array.from({ length: starCount }).map((_, i) => ({
         id: i,
         left: Math.random() * 100,
@@ -89,9 +112,30 @@ export function WeatherEffects() {
         size: 1 + Math.random() * 2,
       }));
       result.showMoon = weatherCode < 6;
+
+      if (weatherCode < 4) { // clear night
+          result.shootingStars = Array.from({ length: 2 }).map((_, i) => ({
+              id: i,
+              left: Math.random() * 100,
+              delay: Math.random() * 15,
+              duration: 10 + Math.random() * 5,
+          }));
+      }
+
+      // 7. FIREFLIES (Warm clear nights)
+      if (temp > 18 && wind < 15) {
+          result.fireflies = Array.from({ length: 15 }).map((_, i) => ({
+              id: i,
+              left: Math.random() * 100,
+              top: 70 + Math.random() * 30, // Bottom 30%
+              delay: Math.random() * 4,
+              duration: 3 + Math.random() * 2,
+              size: 2 + Math.random() * 3,
+          }));
+      }
     }
 
-    // 6. BIRDS (Day, clear to partly cloudy, low wind, no rain)
+    // 8. BIRDS (Day, clear to partly cloudy, low wind, no rain)
     if (isDay && precip === 0 && wind < 30 && weatherCode < 6) {
       const birdCount = 3 + Math.floor(Math.random() * 4);
       result.birds = Array.from({ length: birdCount }).map((_, i) => ({
@@ -104,18 +148,50 @@ export function WeatherEffects() {
       }));
     }
 
+    // 9. LIGHTNING (Storms or heavy rain)
+    if (weatherCode >= 7 || precip > 10) {
+        result.showLightning = true;
+    }
+
+    // 10. FOG (Cloudy, low wind, no rain)
+    if (precip === 0 && wind < 15 && weatherCode >= 4 && weatherCode <= 6) {
+        result.showFog = true;
+    }
+
     return result;
   }, [weather]);
 
   if (!weather) return null;
 
-  const { drops, clouds, leaves, stars, birds, isHot, showMoon } = effects;
+  const { drops, clouds, leaves, stars, birds, fireflies, sunrays, shootingStars, isHot, showMoon, showLightning, showFog } = effects;
 
   return (
     <div className="pointer-events-none fixed inset-0 z-[100] overflow-hidden">
       {/* HEAT SHIMMER */}
       {isHot && (
         <div className="absolute inset-0 bg-gradient-to-tr from-warning/5 via-danger/5 to-transparent animate-heat mix-blend-overlay" />
+      )}
+
+      {/* LIGHTNING */}
+      {showLightning && (
+          <div className="absolute inset-0 bg-white/20 dark:bg-white/10 animate-lightning mix-blend-overlay" />
+      )}
+
+      {/* SUNRAYS */}
+      {sunrays.length > 0 && (
+          <div className="absolute inset-0 mix-blend-overlay origin-top">
+              {sunrays.map((ray) => (
+                  <div
+                      key={`ray-${ray.id}`}
+                      className="absolute top-0 -translate-x-1/2 w-[20vw] h-[80vh] bg-gradient-to-b from-white/30 to-transparent blur-2xl animate-sunray"
+                      style={{
+                          left: `${ray.left}%`,
+                          animationDelay: `${ray.delay}s`,
+                          animationDuration: `${ray.duration}s`,
+                      }}
+                  />
+              ))}
+          </div>
       )}
 
       {/* MOON */}
@@ -143,6 +219,43 @@ export function WeatherEffects() {
         </div>
       )}
 
+      {/* SHOOTING STARS */}
+      {shootingStars.length > 0 && (
+          <div className="absolute inset-0">
+              {shootingStars.map((star) => (
+                  <div
+                    key={`shooting-star-${star.id}`}
+                    className="absolute top-[10%] w-32 h-[1px] bg-gradient-to-r from-transparent via-white to-transparent animate-shooting-star opacity-0"
+                    style={{
+                        left: `${star.left}%`,
+                        animationDelay: `${star.delay}s`,
+                        animationDuration: `${star.duration}s`,
+                    }}
+                  />
+              ))}
+          </div>
+      )}
+
+      {/* FIREFLIES */}
+      {fireflies.length > 0 && (
+          <div className="absolute inset-0">
+              {fireflies.map((firefly) => (
+                  <div
+                      key={`firefly-${firefly.id}`}
+                      className="absolute bg-yellow-200 rounded-full animate-firefly"
+                      style={{
+                          left: `${firefly.left}%`,
+                          top: `${firefly.top}%`,
+                          width: `${firefly.size}px`,
+                          height: `${firefly.size}px`,
+                          animationDelay: `${firefly.delay}s`,
+                          animationDuration: `${firefly.duration}s`,
+                      }}
+                  />
+              ))}
+          </div>
+      )}
+
       {/* CLOUDS */}
       {clouds.length > 0 && (
         <div className="absolute inset-0 opacity-40 dark:opacity-20 blur-xl">
@@ -160,6 +273,14 @@ export function WeatherEffects() {
             />
           ))}
         </div>
+      )}
+
+      {/* FOG */}
+      {showFog && (
+          <div className="absolute inset-0 opacity-30 dark:opacity-10 blur-3xl pointer-events-none overflow-hidden">
+              <div className="absolute top-[50%] left-0 w-[150vw] h-[50vh] bg-white dark:bg-slate-300 rounded-full animate-fog mix-blend-overlay" />
+              <div className="absolute top-[60%] left-[-20%] w-[150vw] h-[50vh] bg-white dark:bg-slate-300 rounded-full animate-fog mix-blend-overlay" style={{ animationDelay: '10s' }} />
+          </div>
       )}
 
       {/* BIRDS */}
